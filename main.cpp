@@ -82,7 +82,7 @@ int main()
 
     // load models
     // -----------
-    Model ourModel("./Objects/backpack/backpack.obj");
+    Model ourModel("./Objects/gun/M1887.obj");
 
     
     // draw in wireframe
