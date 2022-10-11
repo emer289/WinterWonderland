@@ -1,0 +1,7 @@
+#define STB_IMAGE_IMPLEMENTATION
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+"./Textures/container.jpg"
