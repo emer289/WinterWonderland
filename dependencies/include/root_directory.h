@@ -1,0 +1,1 @@
+const char * logl_root = "/Users/emermurphy/Documents/GitHub/LearnOpenGl";
