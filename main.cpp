@@ -84,7 +84,16 @@ int main()
 
 	// build and compile shaders
 	// -------------------------
-	Shader ourShader("anim_model.vs", "anim_model.fs");
+	Shader ourShader2("anim_model.vs", "anim_model.fs");
+
+	
+	// load models
+	// -----------
+	Model ourModel2("Objects/SnowManAnimation/snowManAnimation.dae");
+	Animation danceAnimation2("Objects/SnowManAnimation/snowManAnimation.dae",&ourModel2);
+	Animator animator2(&danceAnimation2);
+
+    Shader ourShader("anim_model.vs", "anim_model.fs");
 
 	
 	// load models
@@ -92,6 +101,7 @@ int main()
 	Model ourModel("Objects/SnowManAnimation/snowManAnimation.dae");
 	Animation danceAnimation("Objects/SnowManAnimation/snowManAnimation.dae",&ourModel);
 	Animator animator(&danceAnimation);
+
 
 
 	// draw in wireframe
@@ -110,7 +120,7 @@ int main()
 		// input
 		// -----
 		processInput(window);
-		animator.UpdateAnimation(deltaTime);
+		animator2.UpdateAnimation(deltaTime);
 		
 		// render
 		// ------
@@ -118,25 +128,40 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// don't forget to enable shader before setting uniforms
-		ourShader.use();
+		ourShader2.use();
+        ourShader.use();
 
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
+		ourShader2.setMat4("projection", projection);
+		ourShader2.setMat4("view", view);
+
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
 
-        auto transforms = animator.GetFinalBoneMatrices();
-		for (int i = 0; i < transforms.size(); ++i)
-			ourShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
-
+        auto transforms2 = animator2.GetFinalBoneMatrices();
+    	for (int i = 0; i < transforms2.size(); ++i){
+			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms2[i]);
+           }
+        
+	
 
 		// render the loaded model
+		glm::mat4 model2 = glm::mat4(1.0f);
+		model2 = glm::translate(model2, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		model2 = glm::scale(model2, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model2);
+		ourModel2.Draw(ourShader2);
+
+        // render the loaded model
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(0.75f, 0.75f, 0.75f)); // translate it down so it's at the center of the scene
 		model = glm::scale(model, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
 		ourShader.setMat4("model", model);
 		ourModel.Draw(ourShader);
+
+
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
