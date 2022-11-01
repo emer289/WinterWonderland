@@ -1,5 +1,4 @@
 #define STB_IMAGE_IMPLEMENTATION
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,18 +9,17 @@
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
-#include <learnopengl/animator.h>
-#include <learnopengl/model_animation.h>
-
-
+#include <learnopengl/model.h>
 
 #include <iostream>
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow *window);
+
+float x_position = 0.0;
+int state = 1;
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -39,192 +37,186 @@ float lastFrame = 0.0f;
 
 int main()
 {
-	// glfw: initialize and configure
-	// ------------------------------
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfw: initialize and configure
+    // ------------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+    // glfw window creation
+    // --------------------
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
-	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
 
-	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-	stbi_set_flip_vertically_on_load(true);
+    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+    stbi_set_flip_vertically_on_load(true);
 
-	// configure global opengl state
-	// -----------------------------
-	glEnable(GL_DEPTH_TEST);
+    // configure global opengl state
+    // -----------------------------
+    glEnable(GL_DEPTH_TEST);
 
-	// build and compile shaders
-	// -------------------------
-	Shader ourShader2("anim_model.vs", "anim_model.fs");
+    // build and compile shaders
+    // -------------------------
+    Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
 
-	
-	// load models
-	// -----------
-	Model ourModel2("Objects/SnowManAnimation/snowManAnimation.dae");
-	Animation danceAnimation2("Objects/SnowManAnimation/snowManAnimation.dae",&ourModel2);
-	Animator animator2(&danceAnimation2);
+    // load models
+    // -----------
+    Model ourModel("Objects/ConeHouse/coneHouse.obj");
 
-    Shader ourShader("anim_model.vs", "anim_model.fs");
+    
 
-	
-	// load models
-	// -----------
-	Model ourModel("Objects/SnowManAnimation/snowManAnimation.dae");
-	Animation danceAnimation("Objects/SnowManAnimation/snowManAnimation.dae",&ourModel);
-	Animator animator(&danceAnimation);
+    // draw in wireframe
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    // render loop
+    // -----------
+    while (!glfwWindowShouldClose(window))
+    {
+        // per-frame time logic
+        // --------------------
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
+         switch(state)
+    {
+        case 1:
+            if(x_position<.9)
+                x_position+=0.03;
+            else    
+                state=-1;
+            break;
+        case -1:
+            if(x_position>=-.9)
+                x_position-=0.03;
+            else
+                state=1;
+            break;
 
-	// draw in wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
-	// render loop
-	// -----------
-	while (!glfwWindowShouldClose(window))
-	{
-		// per-frame time logic
-		// --------------------
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+        // input
+        // -----
+        processInput(window);
 
-		// input
-		// -----
-		processInput(window);
-		animator2.UpdateAnimation(deltaTime);
-		
-		// render
-		// ------
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // render
+        // ------
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// don't forget to enable shader before setting uniforms
-		ourShader2.use();
+        // create transformations
+        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        transform = glm::translate(transform, glm::vec3(x_position, 0.0f, 0.0f));
+       // transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // don't forget to enable shader before setting uniforms
         ourShader.use();
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		ourShader2.setMat4("projection", projection);
-		ourShader2.setMat4("view", view);
-
-		ourShader.setMat4("projection", projection);
-		ourShader.setMat4("view", view);
-
-        auto transforms2 = animator2.GetFinalBoneMatrices();
-    	for (int i = 0; i < transforms2.size(); ++i){
-			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms2[i]);
-           }
-        
-	
-
-		// render the loaded model
-		glm::mat4 model2 = glm::mat4(1.0f);
-		model2 = glm::translate(model2, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		model2 = glm::scale(model2, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
-		ourShader2.setMat4("model", model2);
-		ourModel2.Draw(ourShader2);
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
 
         // render the loaded model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.75f, 0.75f, 0.75f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
-		ourShader.setMat4("model", model);
-		ourModel.Draw(ourShader);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", model);
+        ourModel.Draw(ourShader);
 
 
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
-
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	// glfw: terminate, clearing all previously allocated GLFW resources.
-	// ------------------------------------------------------------------
-	glfwTerminate();
-	return 0;
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
+    glfwTerminate();
+    return 0;
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow *window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
-	if (firstMouse)
-	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
 
-	lastX = xpos;
-	lastY = ypos;
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
