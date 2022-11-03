@@ -89,14 +89,14 @@ int main()
 
     // load models
     // -----------
-    Model ourModel("Objects/ConeHouse/coneHouse.obj");
+    Model ourModel("Objects/SnowManBigArms/snowmanBigArms.obj");
     Model ourMountain("Objects/mountain/snowMountainTexture.obj");
 
     Shader ourShaderAnim("anim_model.vs", "anim_model.fs");
     // load models
 	// -----------
-	Model ourModelAnim("Objects/SnowManAnimation/snowManAnimation.dae");
-	Animation danceAnimation("Objects/SnowManAnimation/snowManAnimation.dae",&ourModelAnim);
+	Model ourModelAnim("Objects/SarahTheSnowMan/snowman.dae");
+	Animation danceAnimation("Objects/SarahTheSnowMan/snowman.dae",&ourModelAnim);
 	Animator animator(&danceAnimation);
 
     
@@ -120,7 +120,7 @@ int main()
         // -----
         processInput(window);
         animator.UpdateAnimation(deltaTime);
-////
+//// bouncing snow man
         // render
         // ------
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
@@ -149,11 +149,12 @@ int main()
 		// render the loaded model
 		glm::mat4 modelAnim = glm::mat4(1.0f);
 		modelAnim = glm::translate(modelAnim, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		modelAnim = glm::scale(modelAnim, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
+		modelAnim = glm::scale(modelAnim, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
 		ourShaderAnim.setMat4("model", modelAnim);
 		ourModelAnim.Draw(ourShaderAnim);
+//// bouncing snow man
 
-///////
+///
 
         // create transformations
         glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
@@ -179,7 +180,7 @@ int main()
        // ourModel.Draw(ourShader);
         
 
-
+/////mountain 
         // don't forget to enable shader before setting uniforms
         ourMountainShader.use();
 
@@ -191,7 +192,7 @@ int main()
 
         // render the loaded model
         glm::mat4 modelM = glm::mat4(1.0f);
-        modelM = glm::translate(modelM, glm::vec3(0.0f, -0.9f, 0.0f)); // translate it down so it's at the center of the scene
+        modelM = glm::translate(modelM, glm::vec3(-0.9f, -0.9f, 0.0f)); // translate it down so it's at the center of the scene
         modelM = glm::scale(modelM, glm::vec3(3.0f, 3.0f, 3.0f));	// it's a bit too big for our scene, so scale it down
         ourMountainShader.setMat4("model", modelM);
         
@@ -273,14 +274,14 @@ void bounce(){
      switch(state)
     {
         case 1:
-            if(y_position<.9)
-                y_position+=0.03;
+            if(y_position<.3)
+                y_position+=0.005;
             else    
                 state=-1;
             break;
         case -1:
-            if(y_position>=-.9)
-                y_position-=0.03;
+            if(y_position>=0.0)
+                y_position-=0.005;
             else
                 state=1;
             break;
