@@ -9,7 +9,8 @@
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
-#include <learnopengl/model.h>
+#include <learnopengl/animator.h>
+#include <learnopengl/model_animation.h>
 
 #include <iostream>
 
@@ -17,8 +18,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void bounce();
 
-float x_position = 0.0;
+float y_position = 0.0;
 int state = 1;
 
 // settings
@@ -90,6 +92,13 @@ int main()
     Model ourModel("Objects/ConeHouse/coneHouse.obj");
     Model ourMountain("Objects/mountain/snowMountainTexture.obj");
 
+    Shader ourShaderAnim("anim_model.vs", "anim_model.fs");
+    // load models
+	// -----------
+	Model ourModelAnim("Objects/SnowManAnimation/snowManAnimation.dae");
+	Animation danceAnimation("Objects/SnowManAnimation/snowManAnimation.dae",&ourModelAnim);
+	Animator animator(&danceAnimation);
+
     
 
     // draw in wireframe
@@ -101,39 +110,54 @@ int main()
     {
         // per-frame time logic
         // --------------------
-        float currentFrame = static_cast<float>(glfwGetTime());
+        float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-         switch(state)
-    {
-        case 1:
-            if(x_position<.9)
-                x_position+=0.03;
-            else    
-                state=-1;
-            break;
-        case -1:
-            if(x_position>=-.9)
-                x_position-=0.03;
-            else
-                state=1;
-            break;
-
-    }
+        bounce();
 
         // input
         // -----
         processInput(window);
-
+        animator.UpdateAnimation(deltaTime);
+////
         // render
         // ------
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // create transformations
+        glm::mat4 transformAnim = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        transformAnim = glm::translate(transformAnim, glm::vec3(0.0f, y_position, 0.0f));
+
+        // don't forget to enable shader before setting uniforms
+		ourShaderAnim.use();
+        unsigned int transformLocAnim = glGetUniformLocation(ourShaderAnim.ID, "transform");
+        glUniformMatrix4fv(transformLocAnim, 1, GL_FALSE, glm::value_ptr(transformAnim));
+
+		// view/projection transformations
+		glm::mat4 projectionAnim = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 viewAnim = camera.GetViewMatrix();
+		ourShaderAnim.setMat4("projection", projectionAnim);
+		ourShaderAnim.setMat4("view", viewAnim);
+
+        auto transformsAnim = animator.GetFinalBoneMatrices();
+		for (int i = 0; i < transformsAnim.size(); ++i)
+			ourShaderAnim.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transformsAnim[i]);
+
+
+		// render the loaded model
+		glm::mat4 modelAnim = glm::mat4(1.0f);
+		modelAnim = glm::translate(modelAnim, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		modelAnim = glm::scale(modelAnim, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
+		ourShaderAnim.setMat4("model", modelAnim);
+		ourModelAnim.Draw(ourShaderAnim);
+
+///////
+
+        // create transformations
         glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        transform = glm::translate(transform, glm::vec3(x_position, 0.0f, 0.0f));
+        transform = glm::translate(transform, glm::vec3(y_position, 0.0f, 0.0f));
        // transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
         // don't forget to enable shader before setting uniforms
@@ -152,7 +176,7 @@ int main()
         model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+       // ourModel.Draw(ourShader);
         
 
 
@@ -242,4 +266,24 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void bounce(){
+
+     switch(state)
+    {
+        case 1:
+            if(y_position<.9)
+                y_position+=0.03;
+            else    
+                state=-1;
+            break;
+        case -1:
+            if(y_position>=-.9)
+                y_position-=0.03;
+            else
+                state=1;
+            break;
+
+    }
 }
