@@ -82,11 +82,13 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
+    Shader ourShader("1.11model_loading.vs", "1.model_loading.fs");
+    Shader ourMountainShader("1.model_loading.vs", "1.model_loading.fs");
 
     // load models
     // -----------
     Model ourModel("Objects/ConeHouse/coneHouse.obj");
+    Model ourMountain("Objects/mountain/snowMountainTexture.obj");
 
     
 
@@ -147,10 +149,31 @@ int main()
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
+        
+
+
+        // don't forget to enable shader before setting uniforms
+        ourMountainShader.use();
+
+        // view/projection transformations
+        glm::mat4 projectionM = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewM = camera.GetViewMatrix();
+        ourMountainShader.setMat4("projection", projectionM);
+        ourMountainShader.setMat4("view", viewM);
+
+        // render the loaded model
+        glm::mat4 modelM = glm::mat4(1.0f);
+        modelM = glm::translate(modelM, glm::vec3(0.0f, -0.9f, 0.0f)); // translate it down so it's at the center of the scene
+        modelM = glm::scale(modelM, glm::vec3(3.0f, 3.0f, 3.0f));	// it's a bit too big for our scene, so scale it down
+        ourMountainShader.setMat4("model", modelM);
+        
+        ourMountain.Draw(ourMountainShader);
+        
+
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
