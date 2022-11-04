@@ -138,32 +138,28 @@ int main()
 
 //// snowman with big arms start
 
-        // create transformations
-        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        transform = glm::translate(transform, glm::vec3(position, 0.0f, 0.0f));
-       // transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        // don't forget to enable shader before setting uniforms
         snowmanShader.use();
-        unsigned int transformLoc = glGetUniformLocation(snowmanShader.ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        glm::mat4 sTransform = glm::mat4(1.0f); 
+        sTransform = glm::translate(sTransform, glm::vec3(position, 0.0f, 0.0f));
+        unsigned int sTransformLoc = glGetUniformLocation(snowmanShader.ID, "transform");
+        glUniformMatrix4fv(sTransformLoc, 1, GL_FALSE, glm::value_ptr(sTransform));
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        snowmanShader.setMat4("projection", projection);
-        snowmanShader.setMat4("view", view);
+        glm::mat4 sProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 sView = camera.GetViewMatrix();
+        snowmanShader.setMat4("projection", sProjection);
+        snowmanShader.setMat4("view", sView);
 
         // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-        snowmanShader.setMat4("model", model);
+        glm::mat4 sModel = glm::mat4(1.0f);
+        sModel = glm::translate(sModel, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
+        sModel = glm::scale(sModel, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+        snowmanShader.setMat4("model", sModel);
         snowManModel.Draw(snowmanShader);
         
 //// snowman with big arms end
 
-/////mountain 
+//// mountain start  
         // don't forget to enable shader before setting uniforms
         mountainShader.use();
 
@@ -180,6 +176,8 @@ int main()
         mountainShader.setMat4("model", modelM);
         
         mountainModel.Draw(mountainShader);
+
+//// mountain end
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
