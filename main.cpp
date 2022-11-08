@@ -76,17 +76,17 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
    //shaders
-    Shader snowmanShader("1.11model_loading.vs", "1.model_loading.fs");
-    Shader mountainShader("1.model_loading.vs", "1.model_loading.fs");
+    //Shader snowmanShader("1.11model_loading.vs", "1.model_loading.fs");
+   // Shader mountainShader("1.model_loading.vs", "1.model_loading.fs");
     Shader wavingShowmanShader("anim_model.vs", "anim_model.fs");
    
    //models
     Model snowManModel("Objects/SnowManBigArms/snowmanBigArms.obj");
     Model mountainModel("Objects/mountain/snowMountainTexture.obj");
-    Model hatModel("Objects/Hat/hat.obj");
+    Model hatModel("Objects/strawHat/hat.obj");
 
 	Model wavingSnowmanModel("Objects/SarahTheSnowMan/snowman.dae");
-	Animation wavingSnowmanAnimation("Objects/SarahTheSnowMan/snowman.dae",&wavingSnowmanModel);
+	Animation wavingSnowmanAnimation("Objects/snowManWithFace/snowManWithFace1.dae",&wavingSnowmanModel);
 	Animator wavingSnowmanAnimator(&wavingSnowmanAnimation);
 
     
@@ -109,19 +109,77 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//// bouncing waving snowman start
+//// static waving snowman start
         wavingSnowmanAnimator.UpdateAnimation(deltaTime);
 
         wavingShowmanShader.use();  
+        glm::mat4 ssTransform = glm::mat4(1.0f); 
+        ssTransform = glm::translate(ssTransform, glm::vec3(0.0f, 0.0f, 0.0f));
+	    unsigned int ssTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
+        glUniformMatrix4fv(ssTransformLoc, 1, GL_FALSE, glm::value_ptr(ssTransform));
+
+		glm::mat4 ssProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 ssView = camera.GetViewMatrix();
+		wavingShowmanShader.setMat4("projection", ssProjection);
+		wavingShowmanShader.setMat4("view", ssView);
+
+        auto ssTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
+		for (int i = 0; i < ssTransforms.size(); ++i)
+			wavingShowmanShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", ssTransforms[i]);
+
+
+		// render the loaded model
+		glm::mat4 ssModel = glm::mat4(1.0f);
+		ssModel = glm::translate(ssModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		ssModel = glm::scale(ssModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
+		wavingShowmanShader.setMat4("model", ssModel);
+		wavingSnowmanModel.Draw(wavingShowmanShader);
+
+//// static waving snowman end
+
+//// rotating waving snowman start
+        // wavingSnowmanAnimator.UpdateAnimation(deltaTime);
+
+        // wavingShowmanShader.use();  
+        // glm::mat4 rsTransform = glm::mat4(1.0f); 
+        // rsTransform = glm::translate(rsTransform, glm::vec3(-0.7f, 0.0f, 0.0f));
+	    // unsigned int rsTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
+        // glUniformMatrix4fv(rsTransformLoc, 1, GL_FALSE, glm::value_ptr(rsTransform));
+
+		// //glm::mat4 rsProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		// //glm::mat4 rsView = camera.GetViewMatrix();
+		// //wavingShowmanShader.setMat4("projection", rsProjection);
+		// //wavingShowmanShader.setMat4("view", rsView);
+
+        // auto rsTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
+		// for (int i = 0; i < rsTransforms.size(); ++i)
+		// 	wavingShowmanShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", rsTransforms[i]);
+
+
+		// // render the loaded model
+		// glm::mat4 rsModel = glm::mat4(1.0f);
+		// rsModel = glm::translate(rsModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		// rsModel = glm::scale(rsModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
+		// wavingShowmanShader.setMat4("model", rsModel);
+		//wavingSnowmanModel.Draw(wavingShowmanShader);
+
+//// rotating waving snowman end
+
+//// bouncing waving snowman start
+        wavingSnowmanAnimator.UpdateAnimation(deltaTime);
+
+       // wavingShowmanShader.use();  
         glm::mat4 wsTransform = glm::mat4(1.0f); 
-        wsTransform = glm::translate(wsTransform, glm::vec3(0.0f, 0.0f, 0.0f));
+        wsTransform = glm::translate(wsTransform, glm::vec3(0.5f, position, 0.0f));
 	    unsigned int wsTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
         glUniformMatrix4fv(wsTransformLoc, 1, GL_FALSE, glm::value_ptr(wsTransform));
 
-		glm::mat4 wsProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 wsView = camera.GetViewMatrix();
-		wavingShowmanShader.setMat4("projection", wsProjection);
-		wavingShowmanShader.setMat4("view", wsView);
+		//glm::mat4 wsProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		//glm::mat4 wsView = camera.GetViewMatrix();
+		//wavingShowmanShader.setMat4("projection", wsProjection);
+		//wavingShowmanShader.setMat4("view", wsView);
+
+        
 
         auto wsTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
 		for (int i = 0; i < wsTransforms.size(); ++i)
@@ -129,70 +187,70 @@ int main()
 
 
 		// render the loaded model
-		glm::mat4 wsModel = glm::mat4(1.0f);
-		wsModel = glm::translate(wsModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		wsModel = glm::scale(wsModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
-		wavingShowmanShader.setMat4("model", wsModel);
+		// glm::mat4 wsModel = glm::mat4(1.0f);
+		// wsModel = glm::translate(wsModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
+		// wsModel = glm::scale(wsModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
+		wavingShowmanShader.setMat4("model", wsTransform);
 		wavingSnowmanModel.Draw(wavingShowmanShader);
 
 //// bouncing waving snowman end
 
 //// snowman with big arms start
 
-        snowmanShader.use();
-        glm::mat4 sTransform = glm::mat4(1.0f); 
-        sTransform = glm::translate(sTransform, glm::vec3(position, 0.0f, 0.0f));
-        unsigned int sTransformLoc = glGetUniformLocation(snowmanShader.ID, "transform");
-        glUniformMatrix4fv(sTransformLoc, 1, GL_FALSE, glm::value_ptr(sTransform));
+    //     snowmanShader.use();
+    //     glm::mat4 sTransform = glm::mat4(1.0f); 
+    //     sTransform = glm::translate(sTransform, glm::vec3(position, 0.0f, 0.0f));
+    //     unsigned int sTransformLoc = glGetUniformLocation(snowmanShader.ID, "transform");
+    //     glUniformMatrix4fv(sTransformLoc, 1, GL_FALSE, glm::value_ptr(sTransform));
 
-        // view/projection transformations
-        glm::mat4 sProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 sView = camera.GetViewMatrix();
-        snowmanShader.setMat4("projection", sProjection);
-        snowmanShader.setMat4("view", sView);
+    //     // view/projection transformations
+    //     glm::mat4 sProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    //    // glm::mat4 sView = camera.GetViewMatrix();
+    //     snowmanShader.setMat4("projection", sProjection);
+    //    // snowmanShader.setMat4("view", sView);
 
-        // render the loaded model
-        glm::mat4 sModel = glm::mat4(1.0f);
-        sModel = glm::translate(sModel, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
-        sModel = glm::scale(sModel, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-        snowmanShader.setMat4("model", sModel);
+    //     // render the loaded model
+    //     glm::mat4 sModel = glm::mat4(1.0f);
+    //     sModel = glm::translate(sModel, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
+    //     sModel = glm::scale(sModel, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+    //     snowmanShader.setMat4("model", sModel);
        // snowManModel.Draw(snowmanShader);
         
 //// snowman with big arms end
 
 //// mountain start  
         // don't forget to enable shader before setting uniforms
-        mountainShader.use();
+        // mountainShader.use();
 
-        // view/projection transformations
-        glm::mat4 mProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 mView = camera.GetViewMatrix();
-        mountainShader.setMat4("projection", mProjection);
-        mountainShader.setMat4("view", mView);
+        // // view/projection transformations
+        // glm::mat4 mProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // glm::mat4 mView = camera.GetViewMatrix();
+        // mountainShader.setMat4("projection", mProjection);
+        // mountainShader.setMat4("view", mView);
 
-        // render the loaded model
-        glm::mat4 mModel = glm::mat4(1.0f);
-        mModel = glm::translate(mModel, glm::vec3(-0.9f, -0.9f, 0.0f)); // translate it down so it's at the center of the scene
-        mModel = glm::scale(mModel, glm::vec3(3.0f, 3.0f, 3.0f));	// it's a bit too big for our scene, so scale it down
-        mountainShader.setMat4("model", mModel);
+        // // render the loaded model
+        // glm::mat4 mModel = glm::mat4(1.0f);
+        // mModel = glm::translate(mModel, glm::vec3(0.0f, -2.0f, 0.0f)); // translate it down so it's at the center of the scene
+        // mModel = glm::scale(mModel, glm::vec3(5.0f, 5.0f, 5.0f));	// it's a bit too big for our scene, so scale it down
+        // mountainShader.setMat4("model", mModel);
         
-        //mountainModel.Draw(mountainShader);
+        // mountainModel.Draw(mountainShader);
 
 //// mountain end
 
 //// hat start  
        
-        glm::mat4 hProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 hView = camera.GetViewMatrix();
-        mountainShader.setMat4("projection", hProjection);
-        mountainShader.setMat4("view", hView);
+        // glm::mat4 hProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // glm::mat4 hView = camera.GetViewMatrix();
+        // mountainShader.setMat4("projection", hProjection);
+        // mountainShader.setMat4("view", hView);
 
-        glm::mat4 hModel = glm::mat4(1.0f);
-        hModel = glm::translate(hModel, glm::vec3(0.0f, 0.2f, 0.0f)); 
-        hModel = glm::scale(hModel, glm::vec3(0.25f, 0.25f, 0.25f));	
-        mountainShader.setMat4("model", hModel);
+        // glm::mat4 hModel = glm::mat4(1.0f);
+        // hModel = glm::translate(hModel, glm::vec3(0.0f, 0.2f, 0.0f)); 
+        // hModel = glm::scale(hModel, glm::vec3(0.25f, 0.25f, 0.25f));	
+        // mountainShader.setMat4("model", hModel);
         
-        hatModel.Draw(mountainShader);
+        // hatModel.Draw(mountainShader);
 
 //// hat end
         
