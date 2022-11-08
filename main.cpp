@@ -94,7 +94,7 @@ int main()
     // load models
     // -----------
     Model ourModel("Objects/mountain/snowmwithtree3.obj");
-    //Model ourModel2("Objects/mountain/snowmwithtree.obj");
+    Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
 
     // load models
 	// -----------
@@ -140,16 +140,16 @@ int main()
         // // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
 
         // // render the loaded model
-        // glm::mat4 model2 = glm::mat4(1.0f);
-        // model2 = glm::translate(model2, glm::vec3(0.75f, position, 0.0f)); // translate it down so it's at the center of the scene
-        // model2 = glm::scale(model2, glm::vec3(0.25f, 0.25f, 0.25f));	// it's a bit too big for our scene, so scale it down
-        // ourShader.setMat4("model", model2);
-        // ourModel2.Draw(ourShader);
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, glm::vec3(0.75f, position, 0.0f)); // translate it down so it's at the center of the scene
+        model2 = glm::scale(model2, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", model2);
+        ourModel2.Draw(ourShader);
 
     //    ourShader2.use();
     //    ourShader2.setMat4("projection", projection);
@@ -240,13 +240,13 @@ void bounce(){
      switch(state)
     {
         case 1:
-            if(position<.3)
+            if(position<.05)
                 position+=0.005;
             else    
                 state=-1;
             break;
         case -1:
-            if(position>=0.0)
+            if(position>=-0.2)
                 position-=0.005;
             else
                 state=1;
