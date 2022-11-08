@@ -11,7 +11,6 @@ layout(location = 6) in vec4 weights;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
-uniform mat4 transform;
 
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
@@ -37,6 +36,6 @@ void main()
    }
 	
     mat4 viewModel = view * model;
-    gl_Position =  transform * projection * viewModel * totalPosition;
+    gl_Position =  projection * viewModel * totalPosition;
 	TexCoords = tex;
 }
