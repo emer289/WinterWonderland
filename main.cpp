@@ -95,12 +95,13 @@ int main()
     // -----------
     Model ourModel("Objects/mountain/snowmwithtree3.obj");
     Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
+    Model houseModel("Objects/Obj/Stone House.obj");
 
     // load models
 	// -----------
-	// Model ourModel3("Objects/vampire/dancing_vampire.dae");
-	// Animation danceAnimation("Objects/vampire/dancing_vampire.dae",&ourModel3);
-	// Animator animator(&danceAnimation);
+	Model ourModel3("Objects/vampire/dancing_vampire.dae");
+	Animation danceAnimation("Objects/vampire/dancing_vampire.dae",&ourModel3);
+	Animator animator(&danceAnimation);
 
 
 	// draw in wireframe
@@ -120,7 +121,7 @@ int main()
 		// input
 		// -----
 		processInput(window);
-		// animator.UpdateAnimation(deltaTime);
+		animator.UpdateAnimation(deltaTime);
 		
 		// render
 		// ------
@@ -128,7 +129,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// don't forget to enable shader before setting uniforms
-		 ourShader.use();
+		ourShader.use();
          
 
         // // view/projection transformations
@@ -137,36 +138,43 @@ int main()
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         
-        // // render the loaded model
+        // mountain 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
 
-        // // render the loaded model
+        // // snowman
         glm::mat4 model2 = glm::mat4(1.0f);
         model2 = glm::translate(model2, glm::vec3(0.75f, position, 0.0f)); // translate it down so it's at the center of the scene
         model2 = glm::scale(model2, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model2);
         ourModel2.Draw(ourShader);
 
-    //    ourShader2.use();
-    //    ourShader2.setMat4("projection", projection);
-    //     ourShader2.setMat4("view", view);
+        // // house
+        glm::mat4 hModel = glm::mat4(1.0f);
+        hModel = glm::translate(hModel, glm::vec3(-0.75f, -0.1f, 0.0f)); // translate it down so it's at the center of the scene
+        hModel = glm::scale(hModel, glm::vec3(0.0005f, 0.0005f, 0.0005f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", hModel);
+        houseModel.Draw(ourShader);
+
+        ourShader2.use();
+        ourShader2.setMat4("projection", projection);
+        ourShader2.setMat4("view", view);
 
        
-    //     auto transforms = animator.GetFinalBoneMatrices();
-	// 	for (int i = 0; i < transforms.size(); ++i)
-	// 		ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+        auto transforms = animator.GetFinalBoneMatrices();
+		for (int i = 0; i < transforms.size(); ++i)
+			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
 
-	// 	// // render the loaded model
-	// 	glm::mat4 model3 = glm::mat4(1.0f);
-	// 	model3 = glm::translate(model3, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-	// 	model3 = glm::scale(model3, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
-	// 	ourShader2.setMat4("model", model3);
-	// 	ourModel3.Draw(ourShader2);
+		// // render the loaded model
+		glm::mat4 model3 = glm::mat4(1.0f);
+		model3 = glm::translate(model3, glm::vec3(0.0f, -0.1f, 0.0f)); // translate it down so it's at the center of the scene
+		model3 = glm::scale(model3, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model3);
+		ourModel3.Draw(ourShader2);
 
 
 
