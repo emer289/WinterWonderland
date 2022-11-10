@@ -22,7 +22,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void bounce();
+void updatey();
+void updatez();
+void rotateModel();
+
 unsigned int loadCubemap(vector<std::string> faces);
 
 // settings
@@ -39,8 +42,11 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-float position = 0.0;
+float y_position = -0.15f;
+float z_position = -0.45f;
 int state = 1;
+
+float angle = 0.0;
 
 int main()
 {
@@ -188,7 +194,10 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-        bounce();
+        updatey();
+        updatez();
+
+        rotateModel();
 		// input
 		// -----
 		processInput(window);
@@ -211,21 +220,25 @@ int main()
         
         // mountain 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(0.0f, -0.6f, 1.0f)); // translate it down so it's at the center of the scene
+        model = glm::rotate(model,3.0f,glm::vec3(0,1,0));
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
 
         // // snowman
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(0.75f, position, 0.0f)); // translate it down so it's at the center of the scene
-        model2 = glm::scale(model2, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+        model2 = glm::translate(model2, glm::vec3(-0.6f, y_position,z_position+1.0f)); // translate it down so it's at the center of the scene
+        model2 = glm::rotate(model2,1.4f,glm::vec3(0,0,1));//rotation x = 0.0 degrees
+        //model2 = glm::rotate(model2,0.9f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        model2 = glm::rotate(model2,-angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+        model2 = glm::scale(model2, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model2);
         ourModel2.Draw(ourShader);
 
         // // house
         glm::mat4 hModel = glm::mat4(1.0f);
-        hModel = glm::translate(hModel, glm::vec3(-0.75f, -0.3f, -0.5f)); // translate it down so it's at the center of the scene
+        hModel = glm::translate(hModel, glm::vec3(-0.75f, -0.45f, 0.5f)); // translate it down so it's at the center of the scene
         hModel = glm::scale(hModel, glm::vec3(0.0005f, 0.0005f, 0.0005f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", hModel);
         houseModel.Draw(ourShader);
@@ -247,9 +260,6 @@ int main()
 		ourShader2.setMat4("model", model3);
 		ourModel3.Draw(ourShader2);
 
-
-
-
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
@@ -257,7 +267,7 @@ int main()
         
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
-        // skybox cube
+        // skybox cubea
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -333,23 +343,30 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll(yoffset);
 }
 
-void bounce(){
+void updatey(){
+    if(y_position < -0.42f){
+        y_position = -0.15f;
+    }else{
+        y_position-=0.0005;
+    }
+     
+     
+}
 
-     switch(state)
-    {
-        case 1:
-            if(position<.05)
-                position+=0.005;
-            else    
-                state=-1;
-            break;
-        case -1:
-            if(position>=-0.2)
-                position-=0.005;
-            else
-                state=1;
-            break;
+void updatez(){
+    if(y_position < -0.42f){
+        z_position = -0.45f;
+    }else{
+     z_position+=0.0005;
+    }
+}
 
+
+void rotateModel(){
+    if(y_position < -0.42f){
+        //do nothing
+    }else{
+     angle += 0.08;
     }
 }
 unsigned int loadCubemap(vector<std::string> faces)
