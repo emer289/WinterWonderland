@@ -24,6 +24,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void updatey();
 void updatez();
+void updatex();
 void rotateModel();
 
 unsigned int loadCubemap(vector<std::string> faces);
@@ -44,6 +45,7 @@ float lastFrame = 0.0f;
 
 float y_position = -0.15f;
 float z_position = -0.45f;
+float x_position = -0.5f;
 int state = 1;
 
 float angle = 0.0;
@@ -152,8 +154,8 @@ int main()
 
     // load models
 	// -----------
-	Model ourModel3("Objects/vampire/dancing_vampire.dae");
-	Animation danceAnimation("Objects/vampire/dancing_vampire.dae",&ourModel3);
+	Model ourModel3("Objects/FlyingBird/flyingBird.dae");
+	Animation danceAnimation("Objects/FlyingBird/flyingBird.dae",&ourModel3);
 	Animator animator(&danceAnimation);
 
     unsigned int skyboxVAO, skyboxVBO;
@@ -196,6 +198,7 @@ int main()
 
         updatey();
         updatez();
+        updatex();
 
         rotateModel();
 		// input
@@ -248,15 +251,17 @@ int main()
         ourShader2.setMat4("view", view);
 
        
+       //the bird
         auto transforms = animator.GetFinalBoneMatrices();
 		for (int i = 0; i < transforms.size(); ++i)
 			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
 
-		// // render the loaded model
+		//the bird
 		glm::mat4 model3 = glm::mat4(1.0f);
-		model3 = glm::translate(model3, glm::vec3(0.0f, -0.1f, 0.0f)); // translate it down so it's at the center of the scene
-		model3 = glm::scale(model3, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
+		model3 = glm::translate(model3, glm::vec3(x_position, -0.1f, 0.5f)); // translate it down so it's at the center of the scene
+        model3 = glm::rotate(model3,1.4f,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model3 = glm::scale(model3, glm::vec3(.15f, .15f, .15f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model3);
 		ourModel3.Draw(ourShader2);
 
@@ -360,6 +365,15 @@ void updatez(){
      z_position+=0.0005;
     }
 }
+
+void updatex(){
+    if(x_position > 0.9f){
+        x_position = -0.9f;
+    }else{
+     x_position +=0.005;
+    }
+}
+
 
 
 void rotateModel(){
