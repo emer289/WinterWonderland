@@ -45,7 +45,7 @@ float lastFrame = 0.0f;
 
 float y_position = -0.15f;
 float z_position = -0.45f;
-float x_position = -0.5f;
+float x_position = -1.5f;
 int state = 1;
 
 float angle = 0.0;
@@ -154,8 +154,8 @@ int main()
 
     // load models
 	// -----------
-	Model ourModel3("Objects/FlyingBird/flyingBird.dae");
-	Animation danceAnimation("Objects/FlyingBird/flyingBird.dae",&ourModel3);
+	Model ourModel3("Objects/flyingBirdWithHATT/BIRDHAT.dae");
+	Animation danceAnimation("Objects/flyingBirdWithHATT/BIRDHAT.dae",&ourModel3);
 	Animator animator(&danceAnimation);
 
     unsigned int skyboxVAO, skyboxVBO;
@@ -259,10 +259,18 @@ int main()
 
 		//the bird
 		glm::mat4 model3 = glm::mat4(1.0f);
-		model3 = glm::translate(model3, glm::vec3(x_position, -0.1f, 0.5f)); // translate it down so it's at the center of the scene
+		model3 = glm::translate(model3, glm::vec3(x_position, 0.5f, 0.5f)); // translate it down so it's at the center of the scene
         model3 = glm::rotate(model3,1.4f,glm::vec3(0,1,0));//rotation x = 0.0 degrees
-		model3 = glm::scale(model3, glm::vec3(.15f, .15f, .15f));	// it's a bit too big for our scene, so scale it down
+		model3 = glm::scale(model3, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model3);
+		ourModel3.Draw(ourShader2);
+
+        //the bird2
+		glm::mat4 model4 = glm::mat4(1.0f);
+		model4 = glm::translate(model4, glm::vec3(x_position, 0.2f, 0.5f)); // translate it down so it's at the center of the scene
+        model4 = glm::rotate(model4,1.4f,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model4 = glm::scale(model4, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model4);
 		ourModel3.Draw(ourShader2);
 
         // draw skybox as last
@@ -367,8 +375,8 @@ void updatez(){
 }
 
 void updatex(){
-    if(x_position > 0.9f){
-        x_position = -0.9f;
+    if(x_position > 1.5f){
+        x_position = -1.5f;
     }else{
      x_position +=0.005;
     }
