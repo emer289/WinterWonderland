@@ -1,4 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -12,17 +14,14 @@
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
 
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-void bounce();
-
-//bouncing snowman varible
-float position = 0.0;
-int state = 1;
+unsigned int loadTexture(const char *path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -38,18 +37,24 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main()
 {
-   
+    // glfw: initialize and configure
+    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+    // glfw window creation
+    // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
@@ -62,203 +67,290 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
+    // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    stbi_set_flip_vertically_on_load(true);
-
-
+    // configure global opengl state
+    // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
-   //shaders
-    //Shader snowmanShader("1.11model_loading.vs", "1.model_loading.fs");
-   // Shader mountainShader("1.model_loading.vs", "1.model_loading.fs");
-    Shader wavingShowmanShader("anim_model.vs", "anim_model.fs");
-   
-   //models
-    Model snowManModel("Objects/SnowManBigArms/snowmanBigArms.obj");
-    Model mountainModel("Objects/mountain/snowMountainTexture.obj");
-    Model hatModel("Objects/strawHat/hat.obj");
+    // build and compile our shader zprogram
+    // ------------------------------------
+    Shader lightingShader("1.model_loading.vs", "1.model_loading.fs");
+    Shader lightCubeShader("6.light_cube.vs", "6.light_cube.fs");
 
-	Model wavingSnowmanModel("Objects/SarahTheSnowMan/snowman.dae");
-	Animation wavingSnowmanAnimation("Objects/snowManWithFace/snowManWithFace1.dae",&wavingSnowmanModel);
-	Animator wavingSnowmanAnimator(&wavingSnowmanAnimation);
 
-    
+    Model ourModel("Objects/SnowManBigArms/snowmanBigArms.obj");
 
-    //draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float vertices[] = {
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
-   
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
+    // positions all containers
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    // positions of the point lights
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+    // first, configure the cube's VAO (and VBO)
+    unsigned int VBO, cubeVAO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &VBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindVertexArray(cubeVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+    unsigned int lightCubeVAO;
+    glGenVertexArrays(1, &lightCubeVAO);
+    glBindVertexArray(lightCubeVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // load textures (we now use a utility function to keep the code more organized)
+    // -----------------------------------------------------------------------------
+    unsigned int diffuseMap = loadTexture("Textures/container.jpg");
+    unsigned int specularMap = loadTexture("Textures/container2_specular.png");
+
+    // shader configuration
+    // --------------------
+    lightingShader.use();
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
+
+
+    // render loop
+    // -----------
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
+        // per-frame time logic
+        // --------------------
+        float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-
-        bounce();
-
+        // input
+        // -----
         processInput(window);
-                
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+
+        // render
+        // ------
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//// static waving snowman start
-        wavingSnowmanAnimator.UpdateAnimation(deltaTime);
-
-        wavingShowmanShader.use();  
-        glm::mat4 ssTransform = glm::mat4(1.0f); 
-        ssTransform = glm::translate(ssTransform, glm::vec3(0.0f, 0.0f, 0.0f));
-	    unsigned int ssTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
-        glUniformMatrix4fv(ssTransformLoc, 1, GL_FALSE, glm::value_ptr(ssTransform));
-
-		glm::mat4 ssProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 ssView = camera.GetViewMatrix();
-		wavingShowmanShader.setMat4("projection", ssProjection);
-		wavingShowmanShader.setMat4("view", ssView);
-
-        auto ssTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
-		for (int i = 0; i < ssTransforms.size(); ++i)
-			wavingShowmanShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", ssTransforms[i]);
-
-
-		// render the loaded model
-		glm::mat4 ssModel = glm::mat4(1.0f);
-		ssModel = glm::translate(ssModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		ssModel = glm::scale(ssModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
-		wavingShowmanShader.setMat4("model", ssModel);
-		wavingSnowmanModel.Draw(wavingShowmanShader);
-
-//// static waving snowman end
-
-//// rotating waving snowman start
-        // wavingSnowmanAnimator.UpdateAnimation(deltaTime);
-
-        // wavingShowmanShader.use();  
-        // glm::mat4 rsTransform = glm::mat4(1.0f); 
-        // rsTransform = glm::translate(rsTransform, glm::vec3(-0.7f, 0.0f, 0.0f));
-	    // unsigned int rsTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
-        // glUniformMatrix4fv(rsTransformLoc, 1, GL_FALSE, glm::value_ptr(rsTransform));
-
-		// //glm::mat4 rsProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		// //glm::mat4 rsView = camera.GetViewMatrix();
-		// //wavingShowmanShader.setMat4("projection", rsProjection);
-		// //wavingShowmanShader.setMat4("view", rsView);
-
-        // auto rsTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
-		// for (int i = 0; i < rsTransforms.size(); ++i)
-		// 	wavingShowmanShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", rsTransforms[i]);
-
-
-		// // render the loaded model
-		// glm::mat4 rsModel = glm::mat4(1.0f);
-		// rsModel = glm::translate(rsModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		// rsModel = glm::scale(rsModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
-		// wavingShowmanShader.setMat4("model", rsModel);
-		//wavingSnowmanModel.Draw(wavingShowmanShader);
-
-//// rotating waving snowman end
-
-//// bouncing waving snowman start
-        wavingSnowmanAnimator.UpdateAnimation(deltaTime);
-
-       // wavingShowmanShader.use();  
-        glm::mat4 wsTransform = glm::mat4(1.0f); 
-        wsTransform = glm::translate(wsTransform, glm::vec3(0.5f, position, 0.0f));
-	    unsigned int wsTransformLoc = glGetUniformLocation(wavingShowmanShader.ID, "transform");
-        glUniformMatrix4fv(wsTransformLoc, 1, GL_FALSE, glm::value_ptr(wsTransform));
-
-		//glm::mat4 wsProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		//glm::mat4 wsView = camera.GetViewMatrix();
-		//wavingShowmanShader.setMat4("projection", wsProjection);
-		//wavingShowmanShader.setMat4("view", wsView);
-
         
-
-        auto wsTransforms = wavingSnowmanAnimator.GetFinalBoneMatrices();
-		for (int i = 0; i < wsTransforms.size(); ++i)
-			wavingShowmanShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", wsTransforms[i]);
-
-
-		// render the loaded model
-		// glm::mat4 wsModel = glm::mat4(1.0f);
-		// wsModel = glm::translate(wsModel, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-		// wsModel = glm::scale(wsModel, glm::vec3(.25f, .25f, .25f));	// it's a bit too big for our scene, so scale it down
-		wavingShowmanShader.setMat4("model", wsTransform);
-		wavingSnowmanModel.Draw(wavingShowmanShader);
-
-//// bouncing waving snowman end
-
-//// snowman with big arms start
-
-    //     snowmanShader.use();
-    //     glm::mat4 sTransform = glm::mat4(1.0f); 
-    //     sTransform = glm::translate(sTransform, glm::vec3(position, 0.0f, 0.0f));
-    //     unsigned int sTransformLoc = glGetUniformLocation(snowmanShader.ID, "transform");
-    //     glUniformMatrix4fv(sTransformLoc, 1, GL_FALSE, glm::value_ptr(sTransform));
-
-    //     // view/projection transformations
-    //     glm::mat4 sProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    //    // glm::mat4 sView = camera.GetViewMatrix();
-    //     snowmanShader.setMat4("projection", sProjection);
-    //    // snowmanShader.setMat4("view", sView);
-
-    //     // render the loaded model
-    //     glm::mat4 sModel = glm::mat4(1.0f);
-    //     sModel = glm::translate(sModel, glm::vec3(0.5f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
-    //     sModel = glm::scale(sModel, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-    //     snowmanShader.setMat4("model", sModel);
-       // snowManModel.Draw(snowmanShader);
+        lightingShader.use();
+        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("viewPos", camera.Position);
         
-//// snowman with big arms end
-
-//// mountain start  
-        // don't forget to enable shader before setting uniforms
-        // mountainShader.use();
 
         // // view/projection transformations
-        // glm::mat4 mProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // glm::mat4 mView = camera.GetViewMatrix();
-        // mountainShader.setMat4("projection", mProjection);
-        // mountainShader.setMat4("view", mView);
-
-        // // render the loaded model
-        // glm::mat4 mModel = glm::mat4(1.0f);
-        // mModel = glm::translate(mModel, glm::vec3(0.0f, -2.0f, 0.0f)); // translate it down so it's at the center of the scene
-        // mModel = glm::scale(mModel, glm::vec3(5.0f, 5.0f, 5.0f));	// it's a bit too big for our scene, so scale it down
-        // mountainShader.setMat4("model", mModel);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
         
-        // mountainModel.Draw(mountainShader);
-
-//// mountain end
-
-//// hat start  
-       
-        // glm::mat4 hProjection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // glm::mat4 hView = camera.GetViewMatrix();
-        // mountainShader.setMat4("projection", hProjection);
-        // mountainShader.setMat4("view", hView);
-
-        // glm::mat4 hModel = glm::mat4(1.0f);
-        // hModel = glm::translate(hModel, glm::vec3(0.0f, 0.2f, 0.0f)); 
-        // hModel = glm::scale(hModel, glm::vec3(0.25f, 0.25f, 0.25f));	
-        // mountainShader.setMat4("model", hModel);
+        // mountain 
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.6f, 1.0f)); // translate it down so it's at the center of the scene
+        model = glm::rotate(model,3.0f,glm::vec3(0,1,0));
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+        lightingShader.setMat4("model", model);
+        ourModel.Draw(lightingShader);
         
-        // hatModel.Draw(mountainShader);
+        // be sure to activate shader when setting uniforms/drawing objects
+        lightingShader.use();
+        lightingShader.setVec3("viewPos", camera.Position);
+        lightingShader.setFloat("material.shininess", 32.0f);
 
-//// hat end
+        /*
+           Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index 
+           the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
+           by defining light types as classes and set their values in there, or by using a more efficient uniform approach
+           by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
+        */
+        // directional light
+        lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        // point light 1
+        lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("pointLights[0].constant", 1.0f);
+        lightingShader.setFloat("pointLights[0].linear", 0.09f);
+        lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
+        // point light 2
+        lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+        lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("pointLights[1].constant", 1.0f);
+        lightingShader.setFloat("pointLights[1].linear", 0.09f);
+        lightingShader.setFloat("pointLights[1].quadratic", 0.032f);
+        // point light 3
+        lightingShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        lightingShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+        lightingShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("pointLights[2].constant", 1.0f);
+        lightingShader.setFloat("pointLights[2].linear", 0.09f);
+        lightingShader.setFloat("pointLights[2].quadratic", 0.032f);
+        // point light 4
+        lightingShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        lightingShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+        lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("pointLights[3].constant", 1.0f);
+        lightingShader.setFloat("pointLights[3].linear", 0.09f);
+        lightingShader.setFloat("pointLights[3].quadratic", 0.032f);
+        // spotLight
+        lightingShader.setVec3("spotLight.position", camera.Position);
+        lightingShader.setVec3("spotLight.direction", camera.Front);
+        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("spotLight.constant", 1.0f);
+        lightingShader.setFloat("spotLight.linear", 0.09f);
+        lightingShader.setFloat("spotLight.quadratic", 0.032f);
+        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
+
         
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
+
+        // world transformation
+        model = glm::mat4(1.0f);
+        lightingShader.setMat4("model", model);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
+
+        // render containers
+        glBindVertexArray(cubeVAO);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            // calculate the model matrix for each object and pass it to shader before drawing
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            lightingShader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+         // also draw the lamp object(s)
+         lightCubeShader.use();
+         lightCubeShader.setMat4("projection", projection);
+         lightCubeShader.setMat4("view", view);
+    
+         // we now draw as many light bulbs as we have point lights.
+         glBindVertexArray(lightCubeVAO);
+         for (unsigned int i = 0; i < 4; i++)
+         {
+             model = glm::mat4(1.0f);
+             model = glm::translate(model, pointLightPositions[i]);
+             model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+             lightCubeShader.setMat4("model", model);
+             glDrawArrays(GL_TRIANGLES, 0, 36);
+         }
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // optional: de-allocate all resources once they've outlived their purpose:
+    // ------------------------------------------------------------------------
+    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &lightCubeVAO);
+    glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -322,260 +414,41 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
-void bounce(){
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
 
-     switch(state)
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
     {
-        case 1:
-            if(position<.3)
-                position+=0.005;
-            else    
-                state=-1;
-            break;
-        case -1:
-            if(position>=0.0)
-                position-=0.005;
-            else
-                state=1;
-            break;
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
 
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
     }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
-
-
-// #define STB_IMAGE_IMPLEMENTATION
-
-// #include <glad/glad.h>
-// #include <GLFW/glfw3.h>
-
-// #include <glm/glm.hpp>
-// #include <glm/gtc/matrix_transform.hpp>
-// #include <glm/gtc/type_ptr.hpp>
-
-// #include <learnopengl/filesystem.h>
-// #include <learnopengl/shader_m.h>
-// #include <learnopengl/camera.h>
-// #include <learnopengl/model.h>
-// #include <learnopengl/entity.h>
-
-// #ifndef ENTITY_H
-// #define ENTITY_H
-
-// #include <list> //std::list
-// #include <memory> //std::unique_ptr
-
-// class Entity : public Model
-// {
-// public:
-// 	list<unique_ptr<Entity>> children;
-// 	Entity* parent;
-// };
-// #endif
-
-
-// #include <iostream>
-
-// void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-// void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-// void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-// void processInput(GLFWwindow* window);
-
-// // settings
-// const unsigned int SCR_WIDTH = 800;
-// const unsigned int SCR_HEIGHT = 600;
-
-// // camera
-// Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-// float lastX = SCR_WIDTH / 2.0f;
-// float lastY = SCR_HEIGHT / 2.0f;
-// bool firstMouse = true;
-
-// // timing
-// float deltaTime = 0.0f;
-// float lastFrame = 0.0f;
-
-// int main()
-// {
-// 	// glfw: initialize and configure
-// 	// ------------------------------
-// 	glfwInit();
-// 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-// 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-// 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-// #ifdef __APPLE__
-// 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-// #endif
-
-// 	// glfw window creation
-// 	// --------------------
-// 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-// 	if (window == NULL)
-// 	{
-// 		std::cout << "Failed to create GLFW window" << std::endl;
-// 		glfwTerminate();
-// 		return -1;
-// 	}
-// 	glfwMakeContextCurrent(window);
-// 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-// 	glfwSetCursorPosCallback(window, mouse_callback);
-// 	glfwSetScrollCallback(window, scroll_callback);
-
-// 	// tell GLFW to capture our mouse
-// 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-// 	// glad: load all OpenGL function pointers
-// 	// ---------------------------------------
-// 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-// 	{
-// 		std::cout << "Failed to initialize GLAD" << std::endl;
-// 		return -1;
-// 	}
-
-// 	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-// 	stbi_set_flip_vertically_on_load(true);
-
-// 	// configure global opengl state
-// 	// -----------------------------
-// 	glEnable(GL_DEPTH_TEST);
-
-// 	// build and compile shaders
-// 	// -------------------------
-// 	Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
-
-// 	// load entities
-// 	// -----------
-// 	Model model = Model("Objects/planet/planet.obj");
-//     Model modelConeHouse = Model("Objects/ConeHouse/coneHouse.obj");
-// 	Entity ourEntity(model);
-// 	ourEntity.transform.setLocalPosition({ 0, 0, 0 });
-// 	const float scale = 0.75;
-// 	ourEntity.transform.setLocalScale({ scale, scale, scale });
-
-// 	{
-// 		Entity* lastEntity = &ourEntity;
-
-// 		for (unsigned int i = 0; i < 2; ++i)
-// 		{
-// 			lastEntity->addChild(modelConeHouse);
-// 			lastEntity = lastEntity->children.back().get();
-
-// 			//Set tranform values
-// 			lastEntity->transform.setLocalPosition({ 4, 0, 0 });
-// 			lastEntity->transform.setLocalScale({ scale, scale, scale });
-// 		}
-
-// 	}
-// 	ourEntity.updateSelfAndChild();
-
-// 	// draw in wireframe
-// 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-// 	// render loop
-// 	// -----------
-// 	while (!glfwWindowShouldClose(window))
-// 	{
-// 		// per-frame time logic
-// 		// --------------------
-// 		float currentFrame = glfwGetTime();
-// 		deltaTime = currentFrame - lastFrame;
-// 		lastFrame = currentFrame;
-
-// 		// input
-// 		// -----
-// 		processInput(window);
-
-// 		// render
-// 		// ------
-// 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-// 		// don't forget to enable shader before setting uniforms
-// 		ourShader.use();
-
-// 		// view/projection transformations
-// 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-// 		glm::mat4 view = camera.GetViewMatrix();
-// 		ourShader.setMat4("projection", projection);
-// 		ourShader.setMat4("view", view);
-
-// 		// draw our scene graph
-// 		Entity* lastEntity = &ourEntity;
-// 		while (lastEntity->children.size())
-// 		{
-// 			ourShader.setMat4("model", lastEntity->transform.getModelMatrix());
-// 			lastEntity->pModel->Draw(ourShader);
-// 			lastEntity = lastEntity->children.back().get();
-//             lastEntity->transform.setLocalRotation({  ourEntity.transform.getLocalRotation().y + 20 * deltaTime, 0.f, 0.f });
-// 		}
-
-        
-// 		ourEntity.transform.setLocalRotation({ 0.f, ourEntity.transform.getLocalRotation().y + 20 * deltaTime, 0.f });
-// 		ourEntity.updateSelfAndChild();
-
-        
-
-// 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-// 		// -------------------------------------------------------------------------------
-// 		glfwSwapBuffers(window);
-// 		glfwPollEvents();
-// 	}
-
-// 	// glfw: terminate, clearing all previously allocated GLFW resources.
-// 	// ------------------------------------------------------------------
-// 	glfwTerminate();
-// 	return 0;
-// }
-
-// // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// // ---------------------------------------------------------------------------------------------------------
-// void processInput(GLFWwindow* window)
-// {
-// 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-// 		glfwSetWindowShouldClose(window, true);
-
-// 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-// 		camera.ProcessKeyboard(FORWARD, deltaTime);
-// 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-// 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-// 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-// 		camera.ProcessKeyboard(LEFT, deltaTime);
-// 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-// 		camera.ProcessKeyboard(RIGHT, deltaTime);
-// }
-
-// // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// // ---------------------------------------------------------------------------------------------
-// void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-// {
-// 	// make sure the viewport matches the new window dimensions; note that width and 
-// 	// height will be significantly larger than specified on retina displays.
-// 	glViewport(0, 0, width, height);
-// }
-
-// // glfw: whenever the mouse moves, this callback is called
-// // -------------------------------------------------------
-// void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-// {
-// 	if (firstMouse)
-// 	{
-// 		lastX = xpos;
-// 		lastY = ypos;
-// 		firstMouse = false;
-// 	}
-
-// 	float xoffset = xpos - lastX;
-// 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-// 	lastX = xpos;
-// 	lastY = ypos;
-
-// 	camera.ProcessMouseMovement(xoffset, yoffset);
-// }
-
-// // glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// // ----------------------------------------------------------------------
-// void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-// {
-// 	camera.ProcessMouseScroll(yoffset);
-// }
