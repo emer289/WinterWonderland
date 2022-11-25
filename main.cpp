@@ -159,6 +159,7 @@ int main()
     // -----------
     Model ourModel("Objects/mountain/hmmounNOncolourAndR.obj");
     Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
+    Model xmasTree("Objects/XmasTRee/spruce.obj");
     Model houseModel("Objects/Obj/Stone House.obj");
 
     // load models
@@ -210,13 +211,13 @@ int main()
 
     float planeVertices[] = {
         // positions            // normals         // texcoords
-         10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f,
-        -10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-        -10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
+         0.64f, -0.58f,  1.24f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f, //a
+        -0.05f, -0.58f,  1.24f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f, //b
+        -0.05f, -0.56f, 0.75f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f, //c
 
-         10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f,
-        -10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
-         10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,  10.0f, 10.0f
+         0.64f, -0.58f,  1.24f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f, //d
+        -0.05f, -0.56f, 0.75f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f, //e
+         0.64f, -0.58f, 0.75f,  0.0f, 1.0f, 0.0f,  10.0f, 10.0f  //f
     };
     // plane VAO
     unsigned int planeVAO, planeVBO;
@@ -303,6 +304,15 @@ int main()
         model2 = glm::scale(model2, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model2);
         ourModel2.Draw(ourShader);
+
+
+        //xmasTree
+        glm::mat4 modelxmasTree = glm::mat4(1.0f);
+        modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.3f, -0.5f,1.0f)); // translate it down so it's at the center of the scene
+        modelxmasTree = glm::rotate(modelxmasTree,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        modelxmasTree = glm::scale(modelxmasTree, glm::vec3(0.0003f, 0.0003f, 0.0003f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelxmasTree);
+        xmasTree.Draw(ourShader);
 
         // // house
         glm::mat4 hModel = glm::mat4(1.0f);
