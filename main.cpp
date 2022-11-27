@@ -308,7 +308,7 @@ int main()
 
         //xmasTree
         glm::mat4 modelxmasTree = glm::mat4(1.0f);
-        modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.3f, -0.5f,1.0f)); // translate it down so it's at the center of the scene
+        modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.f, 0.7f,1.0f)); // translate it down so it's at the center of the scene
         modelxmasTree = glm::rotate(modelxmasTree,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
         modelxmasTree = glm::scale(modelxmasTree, glm::vec3(0.0003f, 0.0003f, 0.0003f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree);
@@ -392,16 +392,16 @@ int main()
         ourShader.setFloat("pointLights[3].linear", 0.09f);
         ourShader.setFloat("pointLights[3].quadratic", 0.032f);
         // spotLight
-        // ourShader.setVec3("spotLight.position", camera.Position);
-        // ourShader.setVec3("spotLight.direction", camera.Front);
-        // ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        // ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        // ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        // ourShader.setFloat("spotLight.constant", 1.0f);
-        // ourShader.setFloat("spotLight.linear", 0.09f);
-        // ourShader.setFloat("spotLight.quadratic", 0.032f);
-        // ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        // ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
+        ourShader.setVec3("spotLight.position", camera.Position);
+        ourShader.setVec3("spotLight.direction", camera.Front);
+        ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setFloat("spotLight.constant", 1.0f);
+        ourShader.setFloat("spotLight.linear", 0.09f);
+        ourShader.setFloat("spotLight.quadratic", 0.032f);
+        ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
 
         
         ourShader.setMat4("projection", projection);
