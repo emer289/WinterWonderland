@@ -54,7 +54,7 @@ float x_position = -1.f;
 bool movingRight = true;
 int state = 1;
 
-float angle = 0.0;
+float angle = 90.0f * (M_PI/180.0f);
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -276,8 +276,7 @@ int main()
         //updatez();
         updatex();
         updatexCircle();
-
-        //rotateModel();
+        rotateModel();
 		// input
 		// -----
 		processInput(window);
@@ -309,7 +308,7 @@ int main()
         model = glm::rotate(model,3.0f,glm::vec3(0,1,0));
         model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        //ourModel.Draw(ourShader);
 
         // // snowman
         // glm::mat4 model2 = glm::mat4(1.0f);
@@ -367,7 +366,7 @@ int main()
 
 		//the bird
 		glm::mat4 model3 = glm::mat4(1.0f);
-		model3 = glm::translate(model3, glm::vec3(x_position, 0.5f, z_position)); // translate sit down so it's at the center of the scene
+		model3 = glm::translate(model3, glm::vec3(x_position, ((0.25f)*sin(x_position)), z_position)); // translate sit down so it's at the center of the scene
         model3 = glm::rotate(model3,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
 		model3 = glm::scale(model3, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model3);
@@ -581,18 +580,18 @@ void updatey(){
 void updatexCircle(){
 
     if(movingRight){
-        z_position = sqrt(1-(x_position*x_position));
+        z_position = sqrt(9-(x_position*x_position));
     }else{
-        z_position = -sqrt(1-(x_position*x_position));
+        z_position = -sqrt(9-(x_position*x_position));
     }
     
     
 }
 
 void updatex(){
-    if(x_position >= 1.0f){
+    if(x_position >= 3.0f){
         movingRight=false;
-    }else if(x_position <= -1.0f){
+    }else if(x_position <= -3.0f){
         movingRight=true;
     }
     
@@ -612,11 +611,23 @@ void updatex(){
 // }
 
 void rotateModel(){
-    if(y_position < -0.42f){
-        //do nothing
+    // if(y_position < -0.42f){
+    //     //do nothing
+    // }else{
+    //  angle += 0.08;
+    // }
+
+if(x_position >= 3.0f || x_position <= -3.0f){
+
+}else{
+    if(angle >= (360 * (M_PI/180.0f))){
+        angle = 0.0f;
     }else{
-     angle += 0.08;
+        angle += ((0.15f) * (M_PI/180.0f));
     }
+}
+    
+
 }
 
 
