@@ -23,9 +23,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void updatey();
-void updatez();
+//void updatez();
 void updatex();
 void rotateModel();
+void updatexCircle();
 unsigned int loadTexture(const char *path);
 
 unsigned int loadCubemap(vector<std::string> faces);
@@ -46,9 +47,11 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+//translation co ord
 float y_position = -0.15f;
-float z_position = -0.45f;
-float x_position = -1.5f;
+float z_position = 0.0f;
+float x_position = -1.f;
+bool movingRight = true;
 int state = 1;
 
 float angle = 0.0;
@@ -158,8 +161,9 @@ int main()
     // load models
     // -----------
     Model ourModel("Objects/mountain/hmmounNOncolourAndR.obj");
+   // Model ourModel("Objects/mountain/mountEverything.obj");
     Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
-    Model xmasTree("Objects/XmasTRee/spruce.obj");
+    Model xmasTree("Objects/XmasTRee/xmasTreeWithoutdecorations.obj");
     Model houseModel("Objects/Obj/Stone House.obj");
 
     // load models
@@ -187,14 +191,25 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
     
+    // vector<std::string> faces
+    // {
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/right.jpg",
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/left.jpg",
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/top.jpg",
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/bottom.jpg",
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/back.jpg",
+    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/front.jpg",
+        
+    // };
     vector<std::string> faces
     {
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/right.jpg",
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/left.jpg",
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/top.jpg",
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/bottom.jpg",
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/back.jpg",
-        "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/front.jpg",
+        "Textures/Forest/rightPosx.jpg",
+        "Textures/Forest/leftNegx.jpg",
+        "Textures/Forest/topPosy.jpg",
+        "Textures/Forest/bottomNegy.jpg",
+        "Textures/Forest/frontNegz.jpg",
+        "Textures/Forest/backPosz.jpg",
+        
         
     };
     unsigned int cubemapTexture = loadCubemap(faces);
@@ -258,10 +273,11 @@ int main()
 		lastFrame = currentFrame;
 
         updatey();
-        updatez();
+        //updatez();
         updatex();
+        updatexCircle();
 
-        rotateModel();
+        //rotateModel();
 		// input
 		// -----
 		processInput(window);
@@ -296,22 +312,39 @@ int main()
         ourModel.Draw(ourShader);
 
         // // snowman
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(-0.6f, y_position,z_position+1.0f)); // translate it down so it's at the center of the scene
-        model2 = glm::rotate(model2,1.4f,glm::vec3(0,0,1));//rotation x = 0.0 degrees
-        //model2 = glm::rotate(model2,0.9f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
-        model2 = glm::rotate(model2,-angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
-        model2 = glm::scale(model2, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model2);
-        ourModel2.Draw(ourShader);
+        // glm::mat4 model2 = glm::mat4(1.0f);
+        // model2 = glm::translate(model2, glm::vec3(-0.6f, y_position,z_position+1.0f)); // translate it down so it's at the center of the scene
+        // model2 = glm::rotate(model2,1.4f,glm::vec3(0,0,1));//rotation x = 0.0 degrees
+        // //model2 = glm::rotate(model2,0.9f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        // model2 = glm::rotate(model2,-angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+        // model2 = glm::scale(model2, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
+        // ourShader.setMat4("model", model2);
+        // ourModel2.Draw(ourShader);
 
 
         //xmasTree
         glm::mat4 modelxmasTree = glm::mat4(1.0f);
-        modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.1f, -0.7f,1.0f)); // translate it down so it's at the center of the scene
+        modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.1f, -0.55f,1.0f)); // translate it down so it's at the center of the scene
         modelxmasTree = glm::rotate(modelxmasTree,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
         modelxmasTree = glm::scale(modelxmasTree, glm::vec3(0.0003f, 0.0003f, 0.0003f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree);
+        xmasTree.Draw(ourShader);
+
+       //xmasTree2
+        glm::mat4 modelxmasTree2 = glm::mat4(1.0f);
+        modelxmasTree2 = glm::translate(modelxmasTree2, glm::vec3(-0.3f, -0.55f,1.6f)); // translate it down so it's at the center of the scene
+        modelxmasTree2 = glm::rotate(modelxmasTree2,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        modelxmasTree2 = glm::scale(modelxmasTree2, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelxmasTree2);
+        xmasTree.Draw(ourShader);
+
+
+        //xmasTree3
+        glm::mat4 modelxmasTree3 = glm::mat4(1.0f);
+        modelxmasTree3 = glm::translate(modelxmasTree3, glm::vec3(0.6f, -0.55f,1.6f)); // translate it down so it's at the center of the scene
+        modelxmasTree3 = glm::rotate(modelxmasTree3,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        modelxmasTree3 = glm::scale(modelxmasTree3, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelxmasTree3);
         xmasTree.Draw(ourShader);
 
         // // house
@@ -334,8 +367,8 @@ int main()
 
 		//the bird
 		glm::mat4 model3 = glm::mat4(1.0f);
-		model3 = glm::translate(model3, glm::vec3(x_position, 0.5f, 0.5f)); // translate it down so it's at the center of the scene
-        model3 = glm::rotate(model3,1.4f,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model3 = glm::translate(model3, glm::vec3(x_position, 0.5f, z_position)); // translate sit down so it's at the center of the scene
+        model3 = glm::rotate(model3,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
 		model3 = glm::scale(model3, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model3);
 		ourModel3.Draw(ourShader2);
@@ -537,23 +570,46 @@ void updatey(){
      
 }
 
-void updatez(){
-    if(y_position < -0.42f){
-        z_position = -0.45f;
+// void updatez(){
+//     if(y_position < -0.42f){
+//         z_position = -0.45f;
+//     }else{
+//      z_position+=0.0005;
+//     }
+// }
+
+void updatexCircle(){
+
+    if(movingRight){
+        z_position = sqrt(1-(x_position*x_position));
     }else{
-     z_position+=0.0005;
+        z_position = -sqrt(1-(x_position*x_position));
     }
+    
+    
 }
 
 void updatex(){
-    if(x_position > 1.5f){
-        x_position = -1.5f;
+    if(x_position >= 1.0f){
+        movingRight=false;
+    }else if(x_position <= -1.0f){
+        movingRight=true;
+    }
+    
+    if(movingRight){
+        x_position +=0.005;
     }else{
-     x_position +=0.005;
+        x_position -=0.005;
     }
 }
 
-
+// void rotateBird(){
+//     if(y_position < -0.42f){
+//         //do nothing
+//     }else{
+//      angle += 0.08;
+//     }
+// }
 
 void rotateModel(){
     if(y_position < -0.42f){
@@ -562,6 +618,8 @@ void rotateModel(){
      angle += 0.08;
     }
 }
+
+
 unsigned int loadCubemap(vector<std::string> faces)
 {
     unsigned int textureID;
