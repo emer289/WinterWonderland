@@ -374,12 +374,51 @@ int main()
 
         //the bird2
 		glm::mat4 model4 = glm::mat4(1.0f);
-		model4 = glm::translate(model4, glm::vec3(x_position, 0.2f, 0.5f)); // translate it down so it's at the center of the scene
-        model4 = glm::rotate(model4,1.4f,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model4 = glm::translate(model4, glm::vec3(x_position-0.2f, ((0.25f)*sin(x_position)), z_position-0.2f)); // translate it down so it's at the center of the scene
+        model4 = glm::rotate(model4,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
 		model4 = glm::scale(model4, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model4);
 		ourModel3.Draw(ourShader2);
 
+        //the bird3
+		glm::mat4 model5 = glm::mat4(1.0f);
+		model5 = glm::translate(model5, glm::vec3(x_position-0.2f, ((0.25f)*sin(x_position)), z_position+0.2f)); // translate it down so it's at the center of the scene
+        model5 = glm::rotate(model5,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model5 = glm::scale(model5, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model5);
+		ourModel3.Draw(ourShader2);
+
+        //the bird4
+		glm::mat4 model6 = glm::mat4(1.0f);
+		model6 = glm::translate(model6, glm::vec3(x_position-0.2f, ((0.25f)*sin(x_position)), z_position-0.3f)); // translate it down so it's at the center of the scene
+        model6 = glm::rotate(model6,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model6 = glm::scale(model6, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model6);
+		ourModel3.Draw(ourShader2);
+
+        //the bird5
+		glm::mat4 model7 = glm::mat4(1.0f);
+		model7 = glm::translate(model7, glm::vec3(x_position-0.2f, ((0.25f)*sin(x_position)), z_position+0.3f)); // translate it down so it's at the center of the scene
+        model7 = glm::rotate(model7,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model7 = glm::scale(model7, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model7);
+		ourModel3.Draw(ourShader2);
+
+        //the bird6
+		glm::mat4 model8 = glm::mat4(1.0f);
+		model8 = glm::translate(model8, glm::vec3(x_position+0.2f, ((0.25f)*sin(x_position)), z_position-0.3f)); // translate it down so it's at the center of the scene
+        model8 = glm::rotate(model8,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model8 = glm::scale(model8, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model8);
+		ourModel3.Draw(ourShader2);
+
+        //the bird7
+		glm::mat4 model9 = glm::mat4(1.0f);
+		model9 = glm::translate(model9, glm::vec3(x_position+0.2f, ((0.25f)*sin(x_position)), z_position+0.3f)); // translate it down so it's at the center of the scene
+        model9 = glm::rotate(model9,angle,glm::vec3(0,1,0));//rotation x = 0.0 degrees
+		model9 = glm::scale(model9, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", model9);
+		ourModel3.Draw(ourShader2);
 
         // be sure to activate shader when setting uniforms/drawing objects
         ourShader.use();
