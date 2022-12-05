@@ -180,6 +180,8 @@ int main()
     Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
     Model xmasTree("Objects/XmasTRee/xmasTreeWithoutdecorations.obj");
     Model houseModel("Objects/Obj/Stone House.obj");
+    Model santaBottom("Objects/SantaBottom/SantaBottom.obj");
+    Model santaBody("Objects/SantaBottom/santaHeadAndco4.0.obj");
 
     // load models
 	// -----------
@@ -325,6 +327,23 @@ int main()
         ourShader.setMat4("model", model);
         //ourModel.Draw(ourShader);
 
+        //santaBottom
+        glm::mat4 modelSanta = glm::mat4(1.0f);
+        modelSanta = glm::translate(modelSanta, glm::vec3(0.69f, 0.25f, 1.0f)); // translate it down so it's at the center of the scene
+        modelSanta = glm::rotate(modelSanta,3.0f,glm::vec3(0,0,1));
+        modelSanta = glm::rotate(modelSanta,1.4f,glm::vec3(0,1,0));
+        modelSanta = glm::scale(modelSanta, glm::vec3(0.02f, 0.02f, 0.02f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelSanta);
+        santaBottom.Draw(ourShader);
+
+        //santaBottom
+        glm::mat4 modelSanta3 = glm::mat4(1.0f);
+        modelSanta3 = glm::translate(modelSanta3, glm::vec3(0.4f, -0.4f, 1.0f)); // translate it down so it's at the center of the scene
+        modelSanta3 = glm::scale(modelSanta3, glm::vec3(0.02f, 0.02f, 0.02f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelSanta3);
+        santaBody.Draw(ourShader);
+
+
         // // snowman
         // glm::mat4 model2 = glm::mat4(1.0f);
         // model2 = glm::translate(model2, glm::vec3(-0.6f, y_position,z_position+1.0f)); // translate it down so it's at the center of the scene
@@ -371,6 +390,7 @@ int main()
         ourShader2.use();
         ourShader2.setMat4("projection", projection);
         ourShader2.setMat4("view", view);
+
 
        
        //the bird
