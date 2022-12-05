@@ -13,6 +13,9 @@
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
 
+#include<cstdio>
+#include<ctime>
+
 
 
 #include <iostream>
@@ -106,7 +109,7 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+    clock_t start = clock();
 	// build and compile shaders
 	// -------------------------
 	Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
@@ -185,9 +188,17 @@ int main()
 
     // load models
 	// -----------
+	Model ourSanta("Objects/SantaBottom/santaHead5.0.dae");
+	Animation santaAnimation("Objects/SantaBottom/santaHead5.0.dae",&ourSanta);
+	Animator animatorSanta(&santaAnimation);
+
+    // load models
+	// -----------
 	Model ourModel3("Objects/flyingBirdWithHATT/BIRDHAT.dae");
 	Animation danceAnimation("Objects/flyingBirdWithHATT/BIRDHAT.dae",&ourModel3);
 	Animator animator(&danceAnimation);
+
+    
 
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
@@ -297,7 +308,7 @@ int main()
 		// input
 		// -----
 		processInput(window);
-		animator.UpdateAnimation(deltaTime);
+		
 		
 		// render
 		// ------
@@ -354,7 +365,6 @@ int main()
         // ourShader.setMat4("model", model2);
         // ourModel2.Draw(ourShader);
 
-
         //xmasTree
         glm::mat4 modelxmasTree = glm::mat4(1.0f);
         modelxmasTree = glm::translate(modelxmasTree, glm::vec3(0.1f, -0.55f,1.0f)); // translate it down so it's at the center of the scene
@@ -363,13 +373,16 @@ int main()
         ourShader.setMat4("model", modelxmasTree);
         xmasTree.Draw(ourShader);
 
-       //xmasTree2
+        //xmasTree2
         glm::mat4 modelxmasTree2 = glm::mat4(1.0f);
         modelxmasTree2 = glm::translate(modelxmasTree2, glm::vec3(-0.3f, -0.55f,1.6f)); // translate it down so it's at the center of the scene
         modelxmasTree2 = glm::rotate(modelxmasTree2,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
         modelxmasTree2 = glm::scale(modelxmasTree2, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree2);
         xmasTree.Draw(ourShader);
+
+        
+
 
 
         //xmasTree3
@@ -393,7 +406,11 @@ int main()
 
 
        
+       if(!blinnKeyPressed){
        //the bird
+
+        animator.UpdateAnimation(deltaTime);
+
         auto transforms = animator.GetFinalBoneMatrices();
 		for (int i = 0; i < transforms.size(); ++i)
 			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
@@ -454,6 +471,21 @@ int main()
 		model9 = glm::scale(model9, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model9);
 		ourModel3.Draw(ourShader2);
+       }else{
+        animatorSanta.UpdateAnimation(deltaTime);
+        //the bird
+        auto transforms = animatorSanta.GetFinalBoneMatrices();
+		for (int i = 0; i < transforms.size(); ++i)
+			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+
+
+		//the bird
+		glm::mat4 modelSanta5 = glm::mat4(1.0f);
+		modelSanta5 = glm::translate(modelSanta5, glm::vec3(0.0f, 0.0f, 0.0f)); // translate sit down so it's at the center of the scene
+		modelSanta5 = glm::scale(modelSanta5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelSanta5);
+		ourSanta.Draw(ourShader2);
+       }
 
         //brick
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
