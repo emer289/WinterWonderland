@@ -25,15 +25,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void updatey();
-//void updatez();
 void updatex();
 void rotateModel();
 void updatexCircle();
 unsigned int loadTexture(const char *path);
 void renderQuad();
-void updatexSnowMan();
-void updatexCircleBob();
+void updateXBob();
+void updateZBob();
+void updateYBob();
+void rotateBob();
 
 unsigned int loadCubemap(vector<std::string> faces);
 
@@ -60,11 +60,20 @@ float x_position = -1.f;
 bool movingRight = true;
 int state = 1;
 
-//translation co ord
-float y_position_bob = -0.15f;
-float z_position_bob = 0.0f;
-float x_position_bob = -1.0f;
+//moving snowpeople bob 
+float x_position_bob = 0.35f;
+float y_position_bob = -0.3f;
+float z_position_bob = -0.4f;
+float angle_bob = 0.0;
 bool movingRight_bob = true;
+bool movingUp_bob = true;
+
+//moving snowpeople Bob2
+float x_position_bob2 = 1.05f;
+float y_position_bob2 = -0.3f;
+float z_position_bob2 = -0.4f;
+bool movingRight_bob2 = true;
+bool movingUp_bob2 = true;
 
 float angle = 90.0f * (M_PI/180.0f);
 
@@ -197,8 +206,8 @@ int main()
 
     // load models
 	// -----------
-	Model ourSanta("Objects/mountain/DancingBob3.1.dae");
-	Animation santaAnimation("Objects/mountain/DancingBob3.0.dae",&ourSanta);
+	Model ourBob("Objects/mountain/DancingBob3.1.dae");
+	Animation santaAnimation("Objects/mountain/DancingBob3.0.dae",&ourBob);
 	Animator animatorSanta(&santaAnimation);
 
     // load models
@@ -310,13 +319,18 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-        updatey();
+       
         //updatez();
         updatex();
         updatexCircle();
         rotateModel();
-        updatexSnowMan();
-        updatexCircleBob();
+
+        //dancing moving snowmen
+        updateXBob();
+        updateZBob();
+        rotateBob();
+        //updateYBob();
+
 		// input
 		// -----
 		processInput(window);
@@ -506,13 +520,24 @@ int main()
 		glm::mat4 modelSanta5 = glm::mat4(1.0f);
 		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, ((-0.3f)*sin(x_position_bob)), z_position_bob)); // translate sit down so it's at the center of the scene
 		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, -0.1f*sin(x_position_bob),-0.0f)); // translate sit down so it's at the center of the scene
-        modelSanta5 = glm::translate(modelSanta5, glm::vec3(1.05f, -0.3f,-0.4f)); // translate sit down so it's at the center of the scene
-
+        modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
+        modelSanta5 = glm::rotate(modelSanta5,angle_bob,glm::vec3(0,1,0));
        // modelSanta5 = glm::rotate(modelSanta5,angle,glm::vec3(0,1,0));
         modelSanta5 = glm::scale(modelSanta5, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", modelSanta5);
-		ourSanta.Draw(ourShader2);
+		ourBob.Draw(ourShader2);
+       
+
+        //bob 2
+		glm::mat4 modelBob2 = glm::mat4(1.0f);
+        modelBob2 = glm::translate(modelBob2, glm::vec3(x_position_bob + 0.3,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
+        modelBob2 = glm::rotate(modelBob2,angle_bob,glm::vec3(0,1,0));
+       // modelSanta5 = glm::rotate(modelSanta5,angle,glm::vec3(0,1,0));
+        modelBob2 = glm::scale(modelBob2, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelBob2);
+		ourBob.Draw(ourShader2);
        }
+
 
         //brick
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -715,48 +740,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll(yoffset);
 }
 
-void updatey(){
-    if(y_position_bob < -0.3f){
-        y_position_bob = -0.15f;
-    }else{
-        y_position_bob-=0.0005;
-    }
-     
-     
-}
 
-// void updatez(){
-//     if(y_position < -0.42f){
-//         z_position = -0.45f;
-//     }else{
-//      z_position+=0.0005;
-//     }
-// }
+//moving birds start
 
-void updatexCircle(){
-
-    if(movingRight){
-        z_position = sqrt(9-(x_position*x_position));
-    }else{
-        z_position = -sqrt(9-(x_position*x_position));
-    }
-    
-    
-}
-
-void updatexCircleBob(){
-
-    if(movingRight_bob){
-        z_position_bob = sqrt(0.1f-((x_position_bob-0.6)*(x_position_bob-0.6))) + 1.6f;
-        
-    }else{
-        z_position_bob = -(sqrt(0.1f-((x_position_bob-0.6)*(x_position_bob-0.6))) + 1.6f );
-    }
-    
-    
-}
-
-
+//x position
 void updatex(){
     if(x_position >= 3.0f){
         movingRight=false;
@@ -772,36 +759,21 @@ void updatex(){
 }
 
 
+//z position
+void updatexCircle(){
 
-void updatexSnowMan(){
-    // if(x_position_bob >= 1.0f){
-    //     movingRight_bob = false;
-    // }else if(x_position_bob <= 0.75f){
-    //     movingRight_bob = true;
-    // }
+    if(movingRight){
+        z_position = sqrt(9-(x_position*x_position));
+    }else{
+        z_position = -sqrt(9-(x_position*x_position));
+    }
     
-    // if(movingRight_bob){
-        x_position_bob +=0.005;
-    // }else{
-    //     x_position_bob -=0.005;
-    // }
+    
 }
 
-// void rotateBird(){
-//     if(y_position < -0.42f){
-//         //do nothing
-//     }else{
-//      angle += 0.08;
-//     }
-// }
-
+//rotate birds
 void rotateModel(){
-    // if(y_position < -0.42f){
-    //     //do nothing
-    // }else{
-    //  angle += 0.08;
-    // }
-
+ 
 if(x_position >= 3.0f || x_position <= -3.0f){
 
 }else{
@@ -815,6 +787,71 @@ if(x_position >= 3.0f || x_position <= -3.0f){
 
 }
 
+//moving birds end
+
+//moving snowpeople start 
+
+//bob start
+//x position
+void updateXBob(){
+    if(x_position_bob >= 1.05f){
+         movingRight_bob = false;
+     }else if(x_position_bob <= 0.35f){
+         movingRight_bob = true;
+     }
+    
+     if(movingRight_bob){
+        x_position_bob +=0.005;
+     }else{
+         x_position_bob -=0.005;
+     }
+}
+
+//z position
+void updateZBob(){
+
+    if(movingRight_bob){
+        z_position_bob = (-0.8 + sqrt((0.64)-(4*( 0.16-( 0.1225-((x_position_bob-0.7)*(x_position_bob-0.7)) ) ))))/2;
+        
+    }else{
+        z_position_bob = (-0.8 - sqrt((0.64)-(4*( 0.16-( 0.1225-((x_position_bob-0.7)*(x_position_bob-0.7)) ) ))))/2;
+    }
+    
+    
+}
+
+//y position
+void updateYBob(){
+    if(y_position_bob >= -0.2f){
+         movingUp_bob = false;
+     }else if(y_position_bob <= -0.6f){
+         movingUp_bob = true;
+     }
+    
+     if(movingUp_bob){
+        y_position_bob +=0.005;
+     }else{
+        y_position_bob -=0.005;
+     }
+}
+
+// bob end
+
+//bob 2 start 
+
+
+//bob 2 end
+
+
+void rotateBob(){
+    
+    angle_bob += 0.08;
+    
+}
+
+
+
+//snowpeople end
 
 unsigned int loadCubemap(vector<std::string> faces)
 {
