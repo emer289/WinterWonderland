@@ -61,19 +61,13 @@ bool movingRight = true;
 int state = 1;
 
 //moving snowpeople bob 
-float x_position_bob = 0.35f;
+float x_position_bob = 0.15f;
 float y_position_bob = -0.3f;
 float z_position_bob = -0.4f;
 float angle_bob = 0.0;
 bool movingRight_bob = true;
 bool movingUp_bob = true;
 
-//moving snowpeople Bob2
-float x_position_bob2 = 1.05f;
-float y_position_bob2 = -0.3f;
-float z_position_bob2 = -0.4f;
-bool movingRight_bob2 = true;
-bool movingUp_bob2 = true;
 
 float angle = 90.0f * (M_PI/180.0f);
 
@@ -518,11 +512,8 @@ int main()
 
 		//bob
 		glm::mat4 modelSanta5 = glm::mat4(1.0f);
-		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, ((-0.3f)*sin(x_position_bob)), z_position_bob)); // translate sit down so it's at the center of the scene
-		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, -0.1f*sin(x_position_bob),-0.0f)); // translate sit down so it's at the center of the scene
         modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
         modelSanta5 = glm::rotate(modelSanta5,angle_bob,glm::vec3(0,1,0));
-       // modelSanta5 = glm::rotate(modelSanta5,angle,glm::vec3(0,1,0));
         modelSanta5 = glm::scale(modelSanta5, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", modelSanta5);
 		ourBob.Draw(ourShader2);
@@ -530,12 +521,21 @@ int main()
 
         //bob 2
 		glm::mat4 modelBob2 = glm::mat4(1.0f);
-        modelBob2 = glm::translate(modelBob2, glm::vec3(x_position_bob + 0.3,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
+        modelBob2 = glm::translate(modelBob2, glm::vec3(x_position_bob + 0.2,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
         modelBob2 = glm::rotate(modelBob2,angle_bob,glm::vec3(0,1,0));
-       // modelSanta5 = glm::rotate(modelSanta5,angle,glm::vec3(0,1,0));
         modelBob2 = glm::scale(modelBob2, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", modelBob2);
 		ourBob.Draw(ourShader2);
+
+         //bob 3
+		glm::mat4 modelBob3 = glm::mat4(1.0f);
+        modelBob3 = glm::translate(modelBob3, glm::vec3(x_position_bob - 0.2,y_position_bob,z_position_bob)); // translate sit down so it's at the center of the scene
+        modelBob3 = glm::rotate(modelBob3,angle_bob,glm::vec3(0,1,0));
+        modelBob3 = glm::scale(modelBob3, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelBob3);
+		ourBob.Draw(ourShader2);
+
+
        }
 
 
