@@ -32,6 +32,8 @@ void rotateModel();
 void updatexCircle();
 unsigned int loadTexture(const char *path);
 void renderQuad();
+void updatexSnowMan();
+void updatexCircleBob();
 
 unsigned int loadCubemap(vector<std::string> faces);
 
@@ -57,6 +59,12 @@ float z_position = 0.0f;
 float x_position = -1.f;
 bool movingRight = true;
 int state = 1;
+
+//translation co ord
+float y_position_bob = -0.15f;
+float z_position_bob = 0.0f;
+float x_position_bob = -1.0f;
+bool movingRight_bob = true;
 
 float angle = 90.0f * (M_PI/180.0f);
 
@@ -116,6 +124,7 @@ int main()
     Shader ourShader2("anim_model.vs", "anim_model.fs");
     Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs");
     Shader shader("1.advanced_lighting.vs", "1.advanced_lighting.fs");
+    Shader shaderFloor("1.advanced_lighting.vs", "1.advanced_lighting.fs");
 
     Shader shaderBrick("4.normal_mapping.vs", "4.normal_mapping.fs");
 
@@ -188,8 +197,8 @@ int main()
 
     // load models
 	// -----------
-	Model ourSanta("Objects/SantaBottom/santaHead5.0.dae");
-	Animation santaAnimation("Objects/SantaBottom/santaHead5.0.dae",&ourSanta);
+	Model ourSanta("Objects/mountain/DancingBob3.1.dae");
+	Animation santaAnimation("Objects/mountain/DancingBob3.0.dae",&ourSanta);
 	Animator animatorSanta(&santaAnimation);
 
     // load models
@@ -280,11 +289,12 @@ int main()
     // load textures
     // -------------
     unsigned int floorTexture = loadTexture("Textures/wood.png");
+    unsigned int redTexture = loadTexture("Objects/SantaBottom/colorRed.png");
     
     // shader configuration
     // --------------------
     shader.use();
-    shader.setInt("texture1", 0);
+    
 
     // lighting info
     // -------------
@@ -305,6 +315,8 @@ int main()
         updatex();
         updatexCircle();
         rotateModel();
+        updatexSnowMan();
+        updatexCircleBob();
 		// input
 		// -----
 		processInput(window);
@@ -321,8 +333,16 @@ int main()
         ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         ourShader.setVec3("lightPos", lightPos);
         ourShader.setVec3("viewPos", camera.Position);
-        
+       
+        //santaBody
+        glBindTexture(GL_TEXTURE_2D, redTexture);
+        glm::mat4 modelSanta3 = glm::mat4(1.0f);
+        modelSanta3 = glm::translate(modelSanta3, glm::vec3(0.4f, -0.4f, 1.0f)); // translate it down so it's at the center of the scene
+        modelSanta3 = glm::scale(modelSanta3, glm::vec3(0.02f, 0.02f, 0.02f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelSanta3);
+        santaBody.Draw(ourShader);
 
+    
         // // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
@@ -347,12 +367,7 @@ int main()
         ourShader.setMat4("model", modelSanta);
         santaBottom.Draw(ourShader);
 
-        //santaBottom
-        glm::mat4 modelSanta3 = glm::mat4(1.0f);
-        modelSanta3 = glm::translate(modelSanta3, glm::vec3(0.4f, -0.4f, 1.0f)); // translate it down so it's at the center of the scene
-        modelSanta3 = glm::scale(modelSanta3, glm::vec3(0.02f, 0.02f, 0.02f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", modelSanta3);
-        santaBody.Draw(ourShader);
+        
 
 
         // // snowman
@@ -391,6 +406,14 @@ int main()
         modelxmasTree3 = glm::rotate(modelxmasTree3,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
         modelxmasTree3 = glm::scale(modelxmasTree3, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree3);
+        xmasTree.Draw(ourShader);
+
+        //xmasTree4
+         glm::mat4 modelxmasTree4 = glm::mat4(1.0f);
+        modelxmasTree4 = glm::translate(modelxmasTree4, glm::vec3(0.7f, -0.55f,-0.4f)); // translate it down so it's at the center of the scene
+        modelxmasTree4 = glm::rotate(modelxmasTree4,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
+        modelxmasTree4 = glm::scale(modelxmasTree4, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", modelxmasTree4);
         xmasTree.Draw(ourShader);
 
         // // house
@@ -473,16 +496,20 @@ int main()
 		ourModel3.Draw(ourShader2);
        }else{
         animatorSanta.UpdateAnimation(deltaTime);
-        //the bird
+        //bob
         auto transforms = animatorSanta.GetFinalBoneMatrices();
 		for (int i = 0; i < transforms.size(); ++i)
 			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
 
-		//the bird
+		//bob
 		glm::mat4 modelSanta5 = glm::mat4(1.0f);
-		modelSanta5 = glm::translate(modelSanta5, glm::vec3(0.0f, 0.0f, 0.0f)); // translate sit down so it's at the center of the scene
-		modelSanta5 = glm::scale(modelSanta5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, ((-0.3f)*sin(x_position_bob)), z_position_bob)); // translate sit down so it's at the center of the scene
+		//modelSanta5 = glm::translate(modelSanta5, glm::vec3(x_position_bob, -0.1f*sin(x_position_bob),-0.0f)); // translate sit down so it's at the center of the scene
+        modelSanta5 = glm::translate(modelSanta5, glm::vec3(1.05f, -0.3f,-0.4f)); // translate sit down so it's at the center of the scene
+
+       // modelSanta5 = glm::rotate(modelSanta5,angle,glm::vec3(0,1,0));
+        modelSanta5 = glm::scale(modelSanta5, glm::vec3(0.07f, 0.07f, 0.07f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", modelSanta5);
 		ourSanta.Draw(ourShader2);
        }
@@ -571,16 +598,18 @@ int main()
         ourShader.setMat4("model", model);
 
         // draw blinn phonge
-        shader.use();
+        shaderFloor.use();
+        shaderFloor.setInt("texture1", 0);
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
+        shaderFloor.setMat4("projection", projection);
+        shaderFloor.setMat4("view", view);
         // set light uniforms
-        shader.setVec3("viewPos", camera.Position);
-        shader.setVec3("lightPos", lightPos);
-        shader.setInt("blinn", blinn);
+        shaderFloor.setVec3("viewPos", camera.Position);
+        shaderFloor.setVec3("lightPos", lightPos);
+        shaderFloor.setInt("blinn", blinn);
         // floor
+        
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
@@ -687,10 +716,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 void updatey(){
-    if(y_position < -0.42f){
-        y_position = -0.15f;
+    if(y_position_bob < -0.3f){
+        y_position_bob = -0.15f;
     }else{
-        y_position-=0.0005;
+        y_position_bob-=0.0005;
     }
      
      
@@ -715,6 +744,19 @@ void updatexCircle(){
     
 }
 
+void updatexCircleBob(){
+
+    if(movingRight_bob){
+        z_position_bob = sqrt(0.1f-((x_position_bob-0.6)*(x_position_bob-0.6))) + 1.6f;
+        
+    }else{
+        z_position_bob = -(sqrt(0.1f-((x_position_bob-0.6)*(x_position_bob-0.6))) + 1.6f );
+    }
+    
+    
+}
+
+
 void updatex(){
     if(x_position >= 3.0f){
         movingRight=false;
@@ -727,6 +769,22 @@ void updatex(){
     }else{
         x_position -=0.005;
     }
+}
+
+
+
+void updatexSnowMan(){
+    // if(x_position_bob >= 1.0f){
+    //     movingRight_bob = false;
+    // }else if(x_position_bob <= 0.75f){
+    //     movingRight_bob = true;
+    // }
+    
+    // if(movingRight_bob){
+        x_position_bob +=0.005;
+    // }else{
+    //     x_position_bob -=0.005;
+    // }
 }
 
 // void rotateBird(){
