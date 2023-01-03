@@ -332,7 +332,7 @@ int main()
     //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f  //d (+1y)
     // };
 
-    float scaleCV = 0.5f;
+    float scaleCV = 0.75f;
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
