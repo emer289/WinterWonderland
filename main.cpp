@@ -443,8 +443,9 @@ int main()
         //santaBody
         glBindTexture(GL_TEXTURE_2D, redTexture);
         glm::mat4 modelSanta3 = glm::mat4(1.0f);
-        modelSanta3 = glm::translate(modelSanta3, glm::vec3(0.4f, -0.4f, 1.0f)); // translate it down so it's at the center of the scene
-        modelSanta3 = glm::scale(modelSanta3, glm::vec3(0.02f, 0.02f, 0.02f));	// it's a bit too big for our scene, so scale it down
+        modelSanta3 = glm::translate(modelSanta3, glm::vec3(0.25f, -0.5f, 1.0f)); // translate it down so it's at the center of the scene
+        modelSanta3 = glm::rotate(modelSanta3,1.5f,glm::vec3(0,1,0));
+        modelSanta3 = glm::scale(modelSanta3, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelSanta3);
         santaBody.Draw(ourShader);
 
@@ -516,9 +517,9 @@ int main()
 
         //xmasTree4
          glm::mat4 modelxmasTree4 = glm::mat4(1.0f);
-        modelxmasTree4 = glm::translate(modelxmasTree4, glm::vec3(0.7f, -0.55f,-0.4f)); // translate it down so it's at the center of the scene
+        modelxmasTree4 = glm::translate(modelxmasTree4, glm::vec3(2.0f, -0.55f,-0.4f)); // translate it down so it's at the center of the scene
         modelxmasTree4 = glm::rotate(modelxmasTree4,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
-        modelxmasTree4 = glm::scale(modelxmasTree4, glm::vec3(0.0006f, 0.0006f, 0.0006f));	// it's a bit too big for our scene, so scale it down
+        modelxmasTree4 = glm::scale(modelxmasTree4, glm::vec3(0.002f, 0.002f, 0.002f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree4);
         xmasTree.Draw(ourShader);
 
