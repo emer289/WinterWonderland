@@ -125,10 +125,10 @@ int main()
 	// -------------------------
 	Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
     Shader ourShader2("anim_model.vs", "anim_model.fs");
-    Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs");
+    Shader skyboxShader("6.2.skybox.vs", "6.2.skybox.fs");
     Shader shader("1.advanced_lighting.vs", "1.advanced_lighting.fs");
     Shader shaderFloor("1.advanced_lighting.vs", "1.advanced_lighting.fs");
-
+    Shader starShader("6.2.cubemaps.vs", "6.2.cubemaps.fs");
     Shader shaderBrick("4.normal_mapping.vs", "4.normal_mapping.fs");
 
     // load textures
@@ -191,7 +191,7 @@ int main()
     // load models
     // -----------
     Model ourModel("Objects/mountain/hmmounNOncolourAndR.obj");
-   // Model ourModel("Objects/mountain/mountEverything.obj");
+    //Model starModel("Objects/Star/Star.obj");
     Model ourModel2("Objects/SnowManBigArms/snowmanBigArms.obj");
     Model xmasTree("Objects/XmasTRee/xmasTreeWithoutdecorations.obj");
     Model houseModel("Objects/Obj/Stone House.obj");
@@ -231,16 +231,7 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
     
-    // vector<std::string> faces
-    // {
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/right.jpg",
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/left.jpg",
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/top.jpg",
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/bottom.jpg",
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/back.jpg",
-    //     "/Users/emermurphy/Documents/GitHub/LearnOpenGl/Textures/skybox/front.jpg",
-        
-    // };
+   
     vector<std::string> faces
     {
         "Textures/Forest/rightPosx.jpg",
@@ -293,11 +284,118 @@ int main()
     // -------------
     unsigned int floorTexture = loadTexture("Textures/wood.png");
     unsigned int redTexture = loadTexture("Objects/SantaBottom/colorRed.png");
+
     
+    
+    //     float cubeVertices[] = {
+    //     // positions          // normals
+    //     -0.5f,          -0.5+scaleCV,   -0.5f,  0.0f,  0.0f, -1.0f, //a (-1z)
+    //      0.5f-scaleCV,  -0.5f+scaleCV,  -0.5f,  0.0f,  0.0f, -1.0f, //b (-1z)
+    //      0.5f-scaleCV,  0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //c (-1z)
+    //      0.5f-scaleCV,  0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //c (-1z)
+    //     -0.5f,          0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //d (-1z)
+    //     -0.5f,          -0.5f+scaleCV,  -0.5f,  0.0f,  0.0f, -1.0f, //a (-1z)
+
+    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //e (+1z)
+    //      0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //f (+1z)
+    //      0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //g (+1z)
+    //      0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //g (+1z)
+    //     -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //j (+1z)
+    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //e (+1z)
+
+    //     -0.5f,  0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //j (-1x)
+    //     -0.5f,  0.5f,           -0.5f, -1.0f,  0.0f,  0.0f, //d (-1x)
+    //     -0.5f, -0.5f+scaleCV,   -0.5f, -1.0f,  0.0f,  0.0f, //a (-1x)
+    //     -0.5f, -0.5f-scaleCV,   -0.5f,  0.0f,  0.0f, //a (-1x)
+    //     -0.5f, -0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //e (-1x)
+    //     -0.5f,  0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //j (-1x)
+
+    //      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //g (+1x)
+    //      0.5f-scaleCV,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, //c (+1x)
+    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  1.0f,  0.0f,  0.0f, //b (+1x)
+    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  1.0f,  0.0f,  0.0f, //b (+1x)
+    //      0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //f (+1x)
+    //      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //g (+1x)
+
+    //     -0.5f, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //a (-1y)
+    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //b (-1y)
+    //      0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //f (-1y) 
+    //      0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //f (-1y)
+    //     -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //e (-1y)
+    //     -0.5f, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //a (-1y)
+
+    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, //d (+1y)
+    //      0.5f-scaleCV,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, //c (+1y)
+    //      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //g (+1y)
+    //      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //g (+1y)
+    //     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //j (+1y)
+    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f  //d (+1y)
+    // };
+
+    float scaleCV = 0.5f;
+
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float cubeVertices[] = {
+        // positions                                    // normals
+        -0.5f,          -0.5f+scaleCV,      -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //a (-z)
+         0.5f-scaleCV,  -0.5f+scaleCV,      -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //b (-z)
+         0.5f-scaleCV,  0.5f,               -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //c (-z)
+         0.5f-scaleCV,  0.5f,               -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //c (-z)
+        -0.5f,          0.5f,               -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //d (-z)
+        -0.5f,          -0.5f+scaleCV,      -0.5f,       0.0f-(scaleCV/2),      0.0f+(scaleCV/2),       -1.0f, //a (-z)
+
+        -0.5f,         -0.5f+scaleCV,  0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //e (+z)
+         0.5f-scaleCV, -0.5f+scaleCV,  0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //f (+z)
+         0.5f-scaleCV,  0.5f,          0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //g (+z)
+         0.5f-scaleCV,  0.5f,          0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //g (+z)
+        -0.5f,          0.5f,          0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //j (+z)
+        -0.5f,         -0.5f+scaleCV,  0.5f-scaleCV,     0.0f-(scaleCV/2),  0.0f+(scaleCV/2), 1.0f, //e (+z)
+
+        -0.5f,           0.5f,          0.5f-scaleCV,   -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //j (-x)
+        -0.5f,           0.5f,         -0.5f,           -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //d (-x)
+        -0.5f,          -0.5f+scaleCV, -0.5f,           -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //a (-x)
+        -0.5f,          -0.5f+scaleCV, -0.5f,           -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //a (-x)
+        -0.5f,          -0.5f+scaleCV,  0.5f-scaleCV,   -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //e (-x)
+        -0.5f,           0.5f,          0.5f-scaleCV,   -1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //j (-x)
+
+         0.5f-scaleCV,  0.5f,            0.5f-scaleCV,  1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //g (+x)
+         0.5f-scaleCV,  0.5f,           -0.5f,          1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //c (+x)
+         0.5f-scaleCV, -0.5f+scaleCV,   -0.5f,          1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //b (+x)
+         0.5f-scaleCV, -0.5f+scaleCV,   -0.5f,          1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //b (+x)
+         0.5f-scaleCV, -0.5f+scaleCV,    0.5f-scaleCV,  1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //f (+x)
+         0.5f-scaleCV,  0.5f,            0.5f-scaleCV,  1.0f,  0.0f+(scaleCV/2),  0.0f-(scaleCV/2), //g (+x)
+
+        -0.5f,          -0.5f+scaleCV, -0.5f,           0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //a (-y)
+         0.5f-scaleCV,  -0.5f+scaleCV, -0.5f,           0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //b (-y)
+         0.5f-scaleCV,  -0.5f+scaleCV,  0.5f-scaleCV,   0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //f (-y)
+         0.5f-scaleCV,  -0.5f+scaleCV,  0.5f-scaleCV,   0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //f (-y)
+        -0.5f,          -0.5f+scaleCV,  0.5f-scaleCV,   0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //e (-y)
+        -0.5f,          -0.5f+scaleCV, -0.5f,           0.0f-(scaleCV/2), -1.0f,  0.0f-(scaleCV/2), //a (-y)
+
+        -0.5f,          0.5f, -0.5f,            0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2), //d (+y)
+         0.5f-scaleCV,  0.5f, -0.5f,            0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2), //c (+y)
+         0.5f-scaleCV,  0.5f,  0.5f-scaleCV,    0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2), //g (+y)
+         0.5f-scaleCV,  0.5f,  0.5f-scaleCV,    0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2), //g (+y)
+        -0.5f,          0.5f,  0.5f-scaleCV,    0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2), //j (+y)
+        -0.5f,          0.5f, -0.5f,            0.0f-(scaleCV/2),  1.0f,  0.0f-(scaleCV/2)  //d (+y)
+    };
+    // cube VAO
+    unsigned int cubeVAO, cubeVBO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     // shader configuration
     // --------------------
     shader.use();
-    
+    starShader.use();
+    shader.setInt("skybox", 0);
 
     // lighting info
     // -------------
@@ -430,6 +528,26 @@ int main()
         hModel = glm::scale(hModel, glm::vec3(0.001f, 0.001f, 0.001f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", hModel);
         houseModel.Draw(ourShader);
+
+        // star
+        // glm::mat4 sModel = glm::mat4(1.0f);
+        // sModel = glm::translate(sModel, glm::vec3(0.3f, -0.6f, 1.0f)); // translate it down so it's at the center of the scene
+        // sModel = glm::scale(sModel, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        // ourShader.setMat4("model", sModel);
+        // starModel.Draw(ourShader);
+
+        // draw scene as normal
+        starShader.use();
+        starShader.setMat4("model", model);
+        starShader.setMat4("view", view);
+        starShader.setMat4("projection", projection);
+        starShader.setVec3("cameraPos", camera.Position);
+        // cubes
+        glBindVertexArray(cubeVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
 
         ourShader2.use();
         ourShader2.setMat4("projection", projection);
