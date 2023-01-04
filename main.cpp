@@ -517,7 +517,7 @@ int main()
 
         //xmasTree4
          glm::mat4 modelxmasTree4 = glm::mat4(1.0f);
-        modelxmasTree4 = glm::translate(modelxmasTree4, glm::vec3(2.0f, -0.55f,-0.4f)); // translate it down so it's at the center of the scene
+        modelxmasTree4 = glm::translate(modelxmasTree4, glm::vec3(2.0f, -0.8f,-0.4f)); // translate it down so it's at the center of the scene
         modelxmasTree4 = glm::rotate(modelxmasTree4,0.0f,glm::vec3(1,0,0));//rotation x = 0.0 degrees
         modelxmasTree4 = glm::scale(modelxmasTree4, glm::vec3(0.002f, 0.002f, 0.002f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", modelxmasTree4);
