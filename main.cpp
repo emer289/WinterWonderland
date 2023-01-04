@@ -592,8 +592,23 @@ int main()
 		//vampire 1 
 		glm::mat4 modelV1 = glm::mat4(1.0f);
         modelV1 = glm::translate(modelV1, glm::vec3(1.7f, -0.8f, -0.2f)); // translate sit down so it's at the center of the scene
-        modelV1 = glm::scale(modelV1, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
+        modelV1 = glm::scale(modelV1, glm::vec3(0.04f, 0.04f, 0.04f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", modelV1);
+		vampire.Draw(ourShader2);
+
+        //vampire 2
+		glm::mat4 modelV2 = glm::mat4(1.0f);
+        modelV2 = glm::translate(modelV2, glm::vec3(1.7f, -0.8f, -0.15f)); // translate sit down so it's at the center of the scene
+        modelV2 = glm::scale(modelV2, glm::vec3(0.04f, 0.04f, 0.04f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelV2);
+		vampire.Draw(ourShader2);
+
+         //vampire 3
+		glm::mat4 modelV3 = glm::mat4(1.0f);
+        modelV3 = glm::translate(modelV3, glm::vec3(1.63f, -0.8f, -0.15f)); // translate sit down so it's at the center of the scene
+        modelV3 = glm::rotate(modelV3,1.0f,glm::vec3(0,1,0));
+        modelV3 = glm::scale(modelV3, glm::vec3(0.04f, 0.04f, 0.04f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelV3);
 		vampire.Draw(ourShader2);
            
        }else{
