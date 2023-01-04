@@ -41,7 +41,7 @@ unsigned int loadCubemap(vector<std::string> faces);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 bool blinn = false;
-bool blinnKeyPressed = false;
+int blinnKeyPressed = 0;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -204,6 +204,9 @@ int main()
 	Animation santaAnimation("Objects/mountain/DancingBob3.0.dae",&ourBob);
 	Animator animatorSanta(&santaAnimation);
 
+    Model vampire("Objects/vampire/dancing_vampire.dae");
+    Animation vampireAnimation("Objects/vampire/dancing_vampire.dae", &vampire);
+    Animator animatorVampire(&vampireAnimation);
     // load models
 	// -----------
 	Model ourModel3("Objects/flyingBirdWithHATT/BIRDHAT.dae");
@@ -285,52 +288,7 @@ int main()
     unsigned int floorTexture = loadTexture("Textures/wood.png");
     unsigned int redTexture = loadTexture("Objects/SantaBottom/colorRed.png");
 
-    
-    
-    //     float cubeVertices[] = {
-    //     // positions          // normals
-    //     -0.5f,          -0.5+scaleCV,   -0.5f,  0.0f,  0.0f, -1.0f, //a (-1z)
-    //      0.5f-scaleCV,  -0.5f+scaleCV,  -0.5f,  0.0f,  0.0f, -1.0f, //b (-1z)
-    //      0.5f-scaleCV,  0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //c (-1z)
-    //      0.5f-scaleCV,  0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //c (-1z)
-    //     -0.5f,          0.5f,           -0.5f,  0.0f,  0.0f, -1.0f, //d (-1z)
-    //     -0.5f,          -0.5f+scaleCV,  -0.5f,  0.0f,  0.0f, -1.0f, //a (-1z)
 
-    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //e (+1z)
-    //      0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //f (+1z)
-    //      0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //g (+1z)
-    //      0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //g (+1z)
-    //     -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //j (+1z)
-    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, //e (+1z)
-
-    //     -0.5f,  0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //j (-1x)
-    //     -0.5f,  0.5f,           -0.5f, -1.0f,  0.0f,  0.0f, //d (-1x)
-    //     -0.5f, -0.5f+scaleCV,   -0.5f, -1.0f,  0.0f,  0.0f, //a (-1x)
-    //     -0.5f, -0.5f-scaleCV,   -0.5f,  0.0f,  0.0f, //a (-1x)
-    //     -0.5f, -0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //e (-1x)
-    //     -0.5f,  0.5f,           0.5f, -1.0f,  0.0f,  0.0f, //j (-1x)
-
-    //      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //g (+1x)
-    //      0.5f-scaleCV,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, //c (+1x)
-    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  1.0f,  0.0f,  0.0f, //b (+1x)
-    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  1.0f,  0.0f,  0.0f, //b (+1x)
-    //      0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //f (+1x)
-    //      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, //g (+1x)
-
-    //     -0.5f, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //a (-1y)
-    //      0.5f-scaleCV, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //b (-1y)
-    //      0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //f (-1y) 
-    //      0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //f (-1y)
-    //     -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, //e (-1y)
-    //     -0.5f, -0.5f+scaleCV, -0.5f,  0.0f, -1.0f,  0.0f, //a (-1y)
-
-    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, //d (+1y)
-    //      0.5f-scaleCV,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, //c (+1y)
-    //      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //g (+1y)
-    //      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //g (+1y)
-    //     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, //j (+1y)
-    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f  //d (+1y)
-    // };
 
     float scaleCV = 0.75f;
 
@@ -556,8 +514,9 @@ int main()
 
 
        
-       if(!blinnKeyPressed){
+       if(blinnKeyPressed == 1){
        //the bird
+      
 
         animator.UpdateAnimation(deltaTime);
 
@@ -621,13 +580,28 @@ int main()
 		model9 = glm::scale(model9, glm::vec3(.1f, .1f, .1f));	// it's a bit too big for our scene, so scale it down
 		ourShader2.setMat4("model", model9);
 		ourModel3.Draw(ourShader2);
+       }else if(blinnKeyPressed == 2)
+       {
+
+          animatorVampire.UpdateAnimation(deltaTime);
+        //vampire
+        auto transforms = animatorVampire.GetFinalBoneMatrices();
+		for (int i = 0; i < transforms.size(); ++i)
+			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+
+		//vampire 1 
+		glm::mat4 modelV1 = glm::mat4(1.0f);
+        modelV1 = glm::translate(modelV1, glm::vec3(1.7f, -0.8f, -0.2f)); // translate sit down so it's at the center of the scene
+        modelV1 = glm::scale(modelV1, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
+		ourShader2.setMat4("model", modelV1);
+		vampire.Draw(ourShader2);
+           
        }else{
         animatorSanta.UpdateAnimation(deltaTime);
         //bob
         auto transforms = animatorSanta.GetFinalBoneMatrices();
 		for (int i = 0; i < transforms.size(); ++i)
 			ourShader2.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
-
 
 		//bob
 		glm::mat4 modelSanta5 = glm::mat4(1.0f);
@@ -812,15 +786,18 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !blinnKeyPressed) 
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) 
     {
         blinn = !blinn;
-        blinnKeyPressed = true;
+        blinnKeyPressed = 2;
+    }else if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+        blinnKeyPressed = 3;
+    }else{
+        blinnKeyPressed = 1;
     }
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE) 
-    {
-        blinnKeyPressed = false;
-    }
+   
+
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
