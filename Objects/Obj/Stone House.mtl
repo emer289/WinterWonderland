@@ -1,0 +1,36 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 21.02.2014 22:42:20
+
+newmtl Windows
+	Ns 8.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.039600 0.039600 0.039600
+	Ke 0.000000 0.000000 0.000000
+	map_Ka DiffuseWindows.jpg
+	map_Kd DiffuseWindows.jpg
+	map_Ks WindowsReflect.jpg
+	map_bump WindowsBump.jpg
+	bump WindowsBump.jpg
+
+newmtl House
+	Ns 8.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.039600 0.039600 0.039600
+	Ke 0.000000 0.000000 0.000000
+	map_Ka DiffuseHouse.jpg
+	map_Kd DiffuseHouse.jpg
+	map_Ks HomeReflect.jpg
+	map_bump HomeBump.jpg
+	bump HomeBump.jpg
